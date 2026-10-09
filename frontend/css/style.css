@@ -203,6 +203,7 @@ body{font-family:'Manrope',sans-serif;background:var(--pu6);color:var(--ink);ove
 
 /* PACKAGE FILTER TABS */
 .pkg-tabs{display:flex;gap:8px;margin-bottom:36px;background:white;border-radius:var(--r);padding:6px;width:fit-content;box-shadow:var(--shadow)}
+.package-shipping-note{display:none}
 .pkg-tab{padding:10px 24px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all .2s}
 .pkg-tab.active{background:var(--pu2);color:white;box-shadow:0 4px 12px rgba(124,58,237,.3)}
 
@@ -524,15 +525,18 @@ tr:hover td{background:#FDFCFF}
   .sec-header h2{font-size:clamp(23px,7vw,30px);line-height:1.15}
   .sec-header p{font-size:13px;line-height:1.6}
   .pkg-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-  .pkg-card{padding:clamp(12px,4vw,18px);border-radius:14px}
-  .pkg-name{font-size:clamp(13px,4vw,16px);line-height:1.3;overflow-wrap:anywhere}
-  .pkg-dur{font-size:11px;line-height:1.4}
-  .pkg-price{font-size:clamp(20px,6vw,27px)}
-  .pkg-price span{font-size:11px}
-  .pkg-features{gap:7px;margin:12px 0 16px}
-  .pkg-features li{font-size:11px;line-height:1.4;gap:6px}
-  .btn-pkg{padding:10px 7px;font-size:12px;line-height:1.25}
-  .pkg-icon-wrap{width:42px;height:42px;margin-bottom:10px;font-size:20px}
+  .pkg-card{padding:14px 12px 12px;border-radius:14px;gap:0}
+  .pkg-name{font-size:clamp(13px,4vw,16px);line-height:1.3;overflow-wrap:anywhere;margin:0 0 3px}
+  .pkg-dur{font-size:10px;line-height:1.35;padding-bottom:8px;margin-bottom:9px}
+  .pkg-price{font-size:clamp(19px,5.7vw,25px);line-height:1.15;margin-bottom:0;white-space:nowrap}
+  .pkg-price span{display:none}
+  .pkg-features{gap:5px;margin:9px 0 12px;flex:0 0 auto}
+  .pkg-features li{font-size:10px;line-height:1.3;gap:5px}
+  .pkg-features li:nth-child(n+3){display:none}
+  .btn-pkg{padding:9px 5px;font-size:11px;line-height:1.2;margin-top:auto}
+  .pkg-icon-wrap{display:none}
+  .pkg-popular{position:static;align-self:flex-start;transform:none;margin:0 0 7px;padding:4px 9px;font-size:9px}
+  .package-shipping-note{display:block;font-size:10px;color:var(--muted);margin:-10px 0 14px}
   .pkg-tabs{width:100%;max-width:100%;gap:5px;padding:5px;margin-bottom:20px;overflow-x:auto;scrollbar-width:none}
   .pkg-tabs::-webkit-scrollbar{display:none}
   .pkg-tab{flex:0 0 auto;padding:9px 12px;font-size:11px}
