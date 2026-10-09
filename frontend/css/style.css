@@ -586,7 +586,7 @@ tr:hover td{background:#FDFCFF}
 }
 @media(max-width:768px){
   #userScreen{padding-top:calc(58px + env(safe-area-inset-top));padding-bottom:calc(74px + env(safe-area-inset-bottom))}
-  #userNav{position:static;width:100%;height:0;min-height:0;padding:0;display:block;background:none;border:0;box-shadow:none;overflow:visible}
+  #userNav{position:static;width:100%;height:0;min-height:0;padding:0;display:block;background:none;border:0;box-shadow:none;overflow:visible;backdrop-filter:none;-webkit-backdrop-filter:none;filter:none;transform:none}
   .nav-topbar{position:fixed;inset:0 0 auto;z-index:200;display:flex;align-items:center;justify-content:flex-start;min-height:calc(52px + env(safe-area-inset-top));padding:calc(8px + env(safe-area-inset-top)) 14px 8px;background:linear-gradient(112deg,#211044 0%,#352064 48%,#51318A 100%);border-bottom:1px solid rgba(219,198,255,.24);box-shadow:0 6px 20px rgba(36,18,72,.16)}
   .nav-logo{position:static;margin:0;font-size:17px;gap:8px}
   .nav-logo-icon{width:28px;height:28px}
