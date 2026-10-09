@@ -1,5 +1,5 @@
 /* api.js — klien HTTP + penyimpanan sesi (JWT) */
-const API_BASE = 'https://voidplaybox.vercel.app/api';
+const API_BASE = 'https://voidplaybox-backend.vercel.app/api';
 
 const Session = {
   get token() { return localStorage.getItem('pbx_token'); },
