@@ -37,14 +37,14 @@
     </div>
     <div class="form-group">
       <label class="form-label">Password</label>
-      <input class="form-ctrl" id="loginPass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')submitAuth()"/>
+      <div class="password-field">
+        <input class="form-ctrl" id="loginPass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitAuth()"/>
+        <button class="password-toggle" type="button" aria-label="Lihat password" aria-pressed="false" onclick="togglePasswordVisibility()">
+          <svg class="password-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
     </div>
     <button class="btn-login" id="authBtn" onclick="submitAuth()">Masuk ke Void Play Box</button>
-    <div class="login-divider">atau coba demo langsung</div>
-    <div class="login-demo-btns">
-      <button class="btn-demo" onclick="quickLogin('user')">🎮 Demo User</button>
-      <button class="btn-demo" onclick="quickLogin('admin')">🛡️ Demo Admin</button>
-    </div>
   </div>
 </div>
 

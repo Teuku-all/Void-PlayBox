@@ -2,6 +2,16 @@
 let authMode = 'login';
 const DEMO = { user: ['user@playbox.id', 'user123'], admin: ['admin@playbox.id', 'admin123'] };
 
+function togglePasswordVisibility() {
+  const input = $('loginPass');
+  const button = document.querySelector('.password-toggle');
+  const showPassword = input.type === 'password';
+  input.type = showPassword ? 'text' : 'password';
+  button.setAttribute('aria-pressed', String(showPassword));
+  button.setAttribute('aria-label', showPassword ? 'Sembunyikan password' : 'Lihat password');
+  input.focus({ preventScroll: true });
+}
+
 function setAuthMode(mode, el) {
   authMode = mode;
   document.querySelectorAll('#roleToggle .role-btn').forEach(b => b.classList.remove('active'));
