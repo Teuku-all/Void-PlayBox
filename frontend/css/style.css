@@ -93,15 +93,19 @@ body{font-family:'Manrope',sans-serif;background:var(--pu6);color:var(--ink);ove
   font-family:'Manrope',sans-serif;font-size:14px;color:var(--ink);
   outline:none;transition:border-color .2s,box-shadow .2s;
 }
+.input-icon-field,.password-field{position:relative}
+.input-icon-field .form-ctrl,.password-field .form-ctrl{min-height:52px;padding-left:50px;border-radius:999px;background:linear-gradient(145deg,#F0F4FF,#E8EEFC);border-color:#DCE4F4;box-shadow:inset 0 1px 2px rgba(45,62,105,.05),0 4px 12px rgba(68,87,132,.06)}
+.field-icon{position:absolute;left:17px;top:50%;width:19px;height:19px;transform:translateY(-50%);fill:none;stroke:#61749B;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;z-index:1}
+.password-field .form-ctrl{padding-right:56px}
 .form-ctrl:focus{border-color:var(--pu2);box-shadow:0 0 0 3px rgba(124,58,237,.12)}
 .form-ctrl::placeholder{color:#B0A8C8}
-.password-field{position:relative}
-.password-field .form-ctrl{padding-right:52px}
-.password-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:38px;height:38px;display:grid;place-items:center;border:0;border-radius:8px;background:transparent;color:#81759e;cursor:pointer;transition:color .2s,background .2s,transform .2s}
+.password-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:38px;height:38px;display:grid;place-items:center;border:0;border-radius:50%;background:transparent;color:#61749B;cursor:pointer;transition:color .2s,background .2s,transform .2s}
 .password-toggle:hover{color:var(--pu2);background:rgba(124,58,237,.08)}
 .password-toggle:focus-visible{outline:2px solid var(--pu2);outline-offset:1px}
 .password-eye{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .password-toggle[aria-pressed="true"] .password-eye{transform:scale(1.08)}
+.password-eye .eye-slash{opacity:0;transition:opacity .2s}
+.password-toggle[aria-pressed="false"] .eye-slash{opacity:1}
 
 .btn-login{
   width:100%;padding:14px;background:linear-gradient(135deg,var(--pu2),var(--pu3));
@@ -119,14 +123,16 @@ body{font-family:'Manrope',sans-serif;background:var(--pu6);color:var(--ink);ove
 ════════════════════════════════ */
 .topnav{
   position:sticky;top:0;z-index:200;
-  background:var(--pu2);backdrop-filter:blur(20px);
-  border-bottom:1px solid rgba(255,255,255,.16);
-  padding:0 40px;height:68px;display:flex;align-items:center;gap:32px;
+  background:linear-gradient(112deg,#211044 0%,#352064 48%,#51318A 100%);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(219,198,255,.24);box-shadow:0 8px 28px rgba(36,18,72,.2);
+  padding:0 40px;height:72px;display:flex;align-items:center;gap:28px;
 }
 .nav-logo{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:white;margin-right:auto;display:flex;align-items:center;gap:10px}
 .nav-logo-icon{width:32px;height:32px;border-radius:8px;flex:none}
-.nav-link{font-size:14px;font-weight:500;color:rgba(255,255,255,.78);cursor:pointer;padding:4px 0;border-bottom:2px solid transparent;transition:all .2s;text-decoration:none;white-space:nowrap}
-.nav-link:hover,.nav-link.active{color:white;border-bottom-color:white}
+.nav-link{font-size:13px;font-weight:600;color:rgba(255,255,255,.72);cursor:pointer;padding:9px 0;display:flex;align-items:center;gap:7px;border-bottom:2px solid transparent;transition:all .2s;text-decoration:none;white-space:nowrap}
+.nav-link svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;opacity:.88;transition:transform .2s}
+.nav-link:hover,.nav-link.active{color:white;border-bottom-color:#D8B4FE}
+.nav-link:hover svg{transform:translateY(-1px)}
 .nav-right{display:flex;align-items:center;gap:12px;margin-left:auto}
 .nav-cart{position:relative;cursor:pointer;width:40px;height:40px;border-radius:var(--r-sm);background:var(--pu6);display:flex;align-items:center;justify-content:center;font-size:18px;transition:background .2s}
 .nav-cart:hover{background:var(--pu5)}
@@ -374,6 +380,7 @@ body{font-family:'Manrope',sans-serif;background:var(--pu6);color:var(--ink);ove
 .anav-item:hover{background:rgba(255,255,255,.08);color:white}
 .anav-item.active{background:rgba(255,255,255,.15);color:white;border-left-color:white}
 .anav-icon{font-size:17px;width:20px;text-align:center}
+.anav-icon svg{display:block;width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .anav-badge{background:white;color:var(--pu2);font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;margin-left:auto}
 .admin-user{padding:16px 24px;border-top:1px solid rgba(255,255,255,.15);display:flex;align-items:center;gap:10px}
 .admin-user-av{width:36px;height:36px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:white;font-size:14px}
@@ -516,7 +523,31 @@ tr:hover td{background:#FDFCFF}
   .hero h1{font-size:36px}
   .how-grid{grid-template-columns:1fr}
   .courier-grid,.inv-grid{grid-template-columns:1fr}
-  .topnav{padding:0 16px;gap:16px}
+  .topnav{height:auto;min-height:64px;padding:10px 16px 0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));column-gap:8px;row-gap:4px}
+  .nav-logo{grid-column:1/4;grid-row:1;font-size:17px;gap:8px;min-width:0}
+  .nav-logo-icon{width:28px;height:28px}
+  .nav-right{grid-column:4/6;grid-row:1;margin:0;gap:8px;justify-self:end}
+  .nav-avatar{width:34px;height:34px}
+  .btn-logout{padding:7px 11px;font-size:12px}
+  .topnav>.nav-link{grid-row:2;flex-direction:column;justify-content:center;padding:9px 0 10px;font-size:10px;gap:4px;line-height:1.1}
+  .topnav>.nav-link svg{width:16px;height:16px}
+  #adminScreen.active{display:flex;flex-direction:column}
+  .admin-sidebar{position:sticky;top:0;width:100%;min-height:0;height:auto;z-index:150;display:block}
+  .admin-logo{display:none}
+  .admin-nav{display:flex;align-items:center;gap:4px;padding:8px 10px;overflow-x:auto;scrollbar-width:none}
+  .admin-nav::-webkit-scrollbar{display:none}
+  .anav-group,.admin-user,.admin-sidebar-logout{display:none}
+  .anav-item{flex:0 0 auto;gap:7px;padding:9px 11px;border:0;border-radius:10px;font-size:12px;white-space:nowrap}
+  .anav-item.active{background:rgba(255,255,255,.17)}
+  .anav-icon{width:18px}
+  .admin-main{margin-left:0;min-width:0}
+  .admin-topbar{height:58px;padding:0 16px}
+  .admin-topbar h2{font-size:16px}
+  .admin-content{padding:18px 14px}
+  .chart-card{padding:16px;overflow:hidden}
+  .table-wrap{overflow-x:auto}
+  .site-footer{padding:36px 20px 20px}
+  .footer-bottom{gap:12px;flex-wrap:wrap}
 }
 @media(max-width:360px){
   .login-card{padding:28px 18px}
