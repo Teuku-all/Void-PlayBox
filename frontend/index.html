@@ -57,18 +57,22 @@
 ══════════════════════════ -->
 <div id="userScreen" class="screen">
   <!-- NAV -->
-  <nav class="topnav" id="userNav">
-    <div class="nav-logo"><img class="brand-logo nav-logo-icon" src="assets/void-play-box.png" alt=""/>Void Play Box</div>
-    <a class="nav-link active" onclick="userScroll('home',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1z"/></svg>Beranda</a>
-    <a class="nav-link" onclick="userScroll('packages',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 11h12v8H6zM8 11V8a4 4 0 0 1 8 0v3M4 14h2m12 0h2"/></svg>Paket</a>
-    <a class="nav-link" onclick="userScroll('delivery',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>Pengiriman</a>
-    <a class="nav-link" onclick="userScroll('chat-sec',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.7 7.4L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5Z"/></svg>Chat</a>
-    <a class="nav-link" onclick="userScroll('tutorial',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>Tutorial</a>
-    <div class="nav-right">
-      <div class="nav-avatar" id="userAvatar">U</div>
-      <button class="btn-logout" onclick="logout()">Keluar</button>
-    </div>
-  </nav>
+  <div class="topnav" id="userNav">
+    <header class="nav-topbar">
+      <div class="nav-logo"><img class="brand-logo nav-logo-icon" src="assets/void-play-box.png" alt=""/>Void Play Box</div>
+      <div class="nav-right">
+        <div class="nav-avatar" id="userAvatar">U</div>
+        <button class="btn-logout" onclick="logout()">Keluar</button>
+      </div>
+    </header>
+    <nav class="bottom-nav" aria-label="Navigasi utama">
+      <a class="nav-link active" onclick="userScroll('home',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1z"/></svg>Beranda</a>
+      <a class="nav-link" onclick="userScroll('packages',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 11h12v8H6zM8 11V8a4 4 0 0 1 8 0v3M4 14h2m12 0h2"/></svg>Paket</a>
+      <a class="nav-link" onclick="userScroll('delivery',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>Pengiriman</a>
+      <a class="nav-link" onclick="userScroll('chat-sec',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.7 7.4L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5Z"/></svg>Chat</a>
+      <a class="nav-link" onclick="userScroll('tutorial',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>Tutorial</a>
+    </nav>
+  </div>
 
   <!-- HERO -->
   <section id="home">
