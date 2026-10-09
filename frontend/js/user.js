@@ -28,7 +28,35 @@ async function loadPackages() {
   }
 }
 
+let pkgCat = 'all', pkgExpanded = false;
+
+/* Mobile: tab "Semua" hanya menampilkan 2 baris (4 kartu) + sedikit baris ke-3 yang memudar,
+   sisanya muncul setelah menekan "Lihat lebih banyak". */
+function applyPkgCollapse() {
+  const grid = $('pkgGrid'), btn = $('pkgMore');
+  if (!grid || !btn) return;
+  grid.classList.remove('collapsed');
+  grid.style.maxHeight = '';
+  btn.hidden = true;
+  const cards = grid.children;
+  const isMobile = window.matchMedia('(max-width:600px)').matches;
+  if (!isMobile || pkgCat !== 'all' || pkgExpanded || cards.length <= 4) return;
+  const peek = 56; // tinggi baris ke-3 yang masih terlihat (px)
+  const top3 = cards[4].getBoundingClientRect().top - grid.getBoundingClientRect().top;
+  grid.style.maxHeight = (top3 + peek) + 'px';
+  grid.classList.add('collapsed');
+  btn.hidden = false;
+}
+
+function expandPkg() {
+  pkgExpanded = true;
+  applyPkgCollapse();
+}
+
+window.addEventListener('resize', applyPkgCollapse);
+
 function renderPackages(cat) {
+  pkgCat = cat;
   const list = cat === 'all' ? PACKAGES : PACKAGES.filter(p => (p.catalog_group || p.category) === cat);
   $('pkgGrid').innerHTML = list.map(p => `
     <div class="pkg-card${p.is_popular ? ' featured' : ''}">
@@ -40,11 +68,14 @@ function renderPackages(cat) {
       <ul class="pkg-features">${p.features.map(f => `<li><span class="pkg-check">✓</span>${esc(f)}</li>`).join('')}</ul>
       <button class="btn-pkg ${p.is_popular ? 'btn-pkg-main' : 'btn-pkg-outline'}" onclick="bookPkg(${p.id})">Pesan Sekarang</button>
     </div>`).join('');
+  applyPkgCollapse();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(applyPkgCollapse);
 }
 
 function filterPkg(cat, el) {
   document.querySelectorAll('.pkg-tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
+  pkgExpanded = false;
   renderPackages(cat);
 }
 
