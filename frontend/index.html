@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Void Play Box — Sewa PS di Rumahmu</title>
+<link rel="icon" type="image/png" href="assets/void-play-box.png"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+<!-- ══════════════════════════
+     LOGIN
+══════════════════════════ -->
+<div id="loginScreen">
+  <div class="login-blob login-blob-1"></div>
+  <div class="login-blob login-blob-2"></div>
+  <div class="login-card">
+    <div class="login-logo">
+      <img class="brand-logo login-logo-mark" src="assets/void-play-box.png" alt="Void Play Box"/>
+      <h1>Void Play Box</h1>
+      <p>Platform Sewa PlayStation #1 di Banda Aceh</p>
+    </div>
+    <div class="role-toggle" id="roleToggle">
+      <button class="role-btn active" onclick="setAuthMode('login',this)">Masuk</button>
+      <button class="role-btn" onclick="setAuthMode('register',this)">Daftar</button>
+    </div>
+    <div id="regFields" style="display:none">
+      <div class="form-group"><label class="form-label">Nama Lengkap</label><input class="form-ctrl" id="regName" placeholder="Nama kamu"/></div>
+      <div class="form-group"><label class="form-label">Nomor WhatsApp</label><input class="form-ctrl" id="regPhone" placeholder="08xxxxxxxxxx"/></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-ctrl" id="loginEmail" type="email" placeholder="masukkan email kamu"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-ctrl" id="loginPass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')submitAuth()"/>
+    </div>
+    <button class="btn-login" id="authBtn" onclick="submitAuth()">Masuk ke Void Play Box</button>
+    <div class="login-divider">atau coba demo langsung</div>
+    <div class="login-demo-btns">
+      <button class="btn-demo" onclick="quickLogin('user')">🎮 Demo User</button>
+      <button class="btn-demo" onclick="quickLogin('admin')">🛡️ Demo Admin</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════
+     USER SCREEN
+══════════════════════════ -->
+<div id="userScreen" class="screen">
+  <!-- NAV -->
+  <nav class="topnav" id="userNav">
+    <div class="nav-logo"><img class="brand-logo nav-logo-icon" src="assets/void-play-box.png" alt=""/>Void Play Box</div>
+    <a class="nav-link active" onclick="userScroll('home',this)">Beranda</a>
+    <a class="nav-link" onclick="userScroll('packages',this)">Paket</a>
+    <a class="nav-link" onclick="userScroll('delivery',this)">Pengiriman</a>
+    <a class="nav-link" onclick="userScroll('chat-sec',this)">Chat</a>
+    <a class="nav-link" onclick="userScroll('tutorial',this)">Tutorial</a>
+    <div class="nav-right">
+      <div class="nav-avatar" id="userAvatar">U</div>
+      <button class="btn-logout" onclick="logout()">Keluar</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="home">
+    <div class="hero">
+      <div class="hero-blur-1"></div>
+      <div class="hero-blur-2"></div>
+      <div class="hero-inner">
+        <div class="hero-text">
+          <div class="hero-eyebrow">⚡ Layanan Antar ke Rumah · Banda Aceh</div>
+          <h1 class="hero-h1">Main PS<br>Tanpa<br><em>Keluar Rumah</em></h1>
+          <p class="hero-p">Sewa PlayStation diantar langsung ke pintu rumahmu. Pilih paket, bayar, santai — kurir kami yang bawa dan pasang.</p>
+          <div class="hero-actions">
+            <button class="btn-hero btn-hero-primary" onclick="userScroll('packages')">Lihat Paket Sewa</button>
+            <button class="btn-hero btn-hero-ghost" onclick="userScroll('tutorial')">📺 Cara Pasang</button>
+          </div>
+          <div class="hero-stats">
+            <div class="hstat"><div class="hstat-val">500+</div><div class="hstat-lbl">Pelanggan</div></div>
+            <div class="hstat"><div class="hstat-val">3 Jam</div><div class="hstat-lbl">Antar Tercepat</div></div>
+            <div class="hstat"><div class="hstat-val">24/7</div><div class="hstat-lbl">Live Chat</div></div>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="hero-card-float">
+            <div class="hcard-row">
+              <div class="hcard-icon">🎮</div>
+              <div><div class="hcard-name">Paket Personal</div><div class="hcard-sub">PS4 Slim · 4 Jam · 2 Controller</div></div>
+              <div class="hcard-price">Rp 40K</div>
+            </div>
+            <div class="hcard-status">
+              <div style="display:flex;align-items:center;gap:8px"><div class="hcard-dot"></div><span class="hcard-status-txt">Tersedia sekarang</span></div>
+              <div class="hcard-badge">✓ Ready</div>
+            </div>
+          </div>
+          <div class="hero-card-float">
+            <div class="hcard-row">
+              <div class="hcard-icon">🛵</div>
+              <div><div class="hcard-name">Kurir dalam Perjalanan</div><div class="hcard-sub">#PBX-001 · ETA 18 menit</div></div>
+            </div>
+            <div style="margin-top:12px">
+              <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:65%"></div></div>
+              <div style="font-size:12px;opacity:.75;margin-top:4px">Budi S. sedang menuju lokasimu</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- MARQUEE -->
+    <div class="marquee-wrap">
+      <div class="marquee-inner">
+        <span class="marquee-item"><span class="marquee-dot"></span>PS4 Slim Tersedia</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>PS4 Pro Tersedia</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>PlayStation 5 Tersedia</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>20+ Game Populer</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>Antar Gratis Balik</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>COD Tersedia</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>PS4 Slim Tersedia</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>PS4 Pro Tersedia</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>PlayStation 5 Tersedia</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>20+ Game Populer</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>Antar Gratis Balik</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>COD Tersedia</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <div class="content">
+    <div class="how-section">
+      <div class="how-connector"></div>
+      <div class="how-grid">
+        <div class="how-item"><div class="how-num">1</div><h4>Pilih Paket</h4><p>Pilih paket personal per jam, harian, atau paket hemat sesuai kebutuhanmu.</p></div>
+        <div class="how-item"><div class="how-num">2</div><h4>Booking & Bayar</h4><p>Isi data pengiriman dan bayar via transfer, e-wallet, atau COD saat PS tiba.</p></div>
+        <div class="how-item"><div class="how-num">3</div><h4>PS Diantar</h4><p>Kurir kami antar, pasang, dan cek semua fungsi berjalan baik sebelum pergi.</p></div>
+        <div class="how-item"><div class="how-num">4</div><h4>Selesai Main</h4><p>Hubungi kami saat selesai, kurir jemput PS. Semudah itu!</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PACKAGES -->
+  <section id="packages">
+    <div class="content" style="padding-top:0">
+      <div class="sec-header"><h2>Paket Sewa</h2><p>Pilih sesi personal, sewa harian, atau paket hemat yang paling pas buatmu.</p></div>
+      <div class="pkg-tabs">
+        <button class="pkg-tab active" onclick="filterPkg('all',this)">Semua</button>
+        <button class="pkg-tab" onclick="filterPkg('personal',this)">Personal</button>
+        <button class="pkg-tab" onclick="filterPkg('harian',this)">Harian</button>
+        <button class="pkg-tab" onclick="filterPkg('hemat',this)">Paket Hemat</button>
+      </div>
+      <div class="pkg-grid" id="pkgGrid"></div>
+    </div>
+  </section>
+
+  <!-- DELIVERY -->
+  <section id="delivery">
+    <div class="content" style="padding-top:0">
+      <div class="sec-header"><h2>Lacak Pesananmu</h2><p>Pantau status pengiriman dan posisi kurir secara real-time.</p></div>
+      <div id="trackList"></div>
+      <!-- MAP -->
+      <div class="map-wrap">
+        <div class="map-controls">
+          <select class="form-ctrl" id="trackSelect" style="max-width:300px;border-radius:99px;padding:9px 16px" onchange="trackOrder(+this.value)"></select>
+          <button class="btn-pu" style="padding:9px 18px;font-size:13px" onclick="refreshTracking(true)">Perbarui</button>
+          <button class="btn-sm" onclick="copyTrackCode()">Salin Kode</button>
+        </div>
+        <div id="map"></div>
+        <div class="map-footer">
+          <div class="map-stat"><div class="map-stat-lbl">Jarak Tersisa</div><div class="map-stat-val" id="mapDist">—</div></div>
+          <div class="map-stat"><div class="map-stat-lbl">Estimasi Tiba</div><div class="map-stat-val" id="mapEta">—</div></div>
+          <div class="map-stat"><div class="map-stat-lbl">Status</div><div class="map-stat-val" style="color:var(--pu2)" id="mapStatus">—</div></div>
+          <div class="map-stat"><div class="map-stat-lbl">Kurir</div><div class="map-stat-val" id="mapCourier">—</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHAT -->
+  <section id="chat-sec">
+    <div class="content" style="padding-top:0">
+      <div class="sec-header"><h2>Live Chat</h2><p>Ada pertanyaan? Tim kami siap membantu 24 jam, 7 hari.</p></div>
+      <div class="chat-wrap">
+        <div class="chat-list">
+          <div class="chat-list-head">💬 Percakapan</div>
+          <div class="chat-item active">
+            <div class="chat-av" style="background:linear-gradient(135deg,#7C3AED,#A855F7)">👨‍💼</div>
+            <div style="flex:1;min-width:0"><div class="chat-item-name">Admin Void Play Box</div><div class="chat-item-prev">Balasan biasanya &lt; 5 menit</div></div>
+          </div>
+        </div>
+        <div class="chat-main-area">
+          <div class="chat-top">
+            <div class="chat-av" id="chatHeadAv" style="background:linear-gradient(135deg,#7C3AED,#A855F7)">👨‍💼</div>
+            <div><div class="chat-top-name" id="chatHeadName">Admin Void Play Box</div><div class="chat-online"><div class="online-dot"></div>Online sekarang</div></div>
+            <button class="btn-sm" style="margin-left:auto" onclick="window.open('https://wa.me/6285126539339','_blank')">📱 WA</button>
+          </div>
+          <div class="chat-msgs" id="chatMsgs">
+          </div>
+          <div class="chat-quick">
+            <div class="quick-pill" onclick="sendQuick('Berapa harga paket harian?')">Harga paket?</div>
+            <div class="quick-pill" onclick="sendQuick('Apakah bisa bayar COD?')">Bisa COD?</div>
+            <div class="quick-pill" onclick="sendQuick('Berapa lama pengiriman?')">Lama antar?</div>
+            <div class="quick-pill" onclick="sendQuick('Game apa saja yang tersedia?')">Game tersedia?</div>
+          </div>
+          <div class="chat-input-row">
+            <input class="chat-in" id="chatIn" placeholder="Ketik pesan..." onkeydown="if(event.key==='Enter')sendChat()"/>
+            <button class="chat-send-btn" onclick="sendChat()">➤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TUTORIAL -->
+  <section id="tutorial">
+    <div class="content" style="padding-top:0">
+      <div class="tut-hero">
+        <h2>Tutorial Instalasi</h2>
+        <p>Panduan lengkap pasang PlayStation di rumahmu — mudah diikuti, cocok untuk pemula sekalipun.</p>
+      </div>
+      <div class="tut-tabs">
+        <button class="tut-tab active" onclick="showTut('ps4',this)">PS4 Slim</button>
+        <button class="tut-tab" onclick="showTut('ps5',this)">PS5</button>
+        <button class="tut-tab" onclick="showTut('ctrl',this)">Pairing Controller</button>
+        <button class="tut-tab" onclick="showTut('net',this)">Koneksi WiFi</button>
+      </div>
+      <div id="tutContent"></div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h3>Void Play Box</h3>
+          <p>Platform sewa PlayStation terpercaya di Banda Aceh. PS langsung ke rumahmu, beres.</p>
+        </div>
+        <div class="footer-col"><h4>Layanan</h4><a href="#packages">Personal</a><a href="#packages">Harian</a><a href="#packages">Paket Hemat</a><a href="#packages">Siap Antar</a></div>
+        <div class="footer-col"><h4>Bantuan</h4><a>Live Chat</a><a>Tutorial Instalasi</a><a>FAQ</a><a>Lacak Pesanan</a></div>
+        <div class="footer-col"><h4>Kontak</h4><a href="https://wa.me/6285126539339" target="_blank" rel="noopener noreferrer">☎️ 085126539339 · WhatsApp</a><a href="tel:+6285126539339">Telepon langsung</a><a>📧 playbox@mail.id</a><a>📍 Banda Aceh</a></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Void Play Box. All rights reserved.</span><span>Made with 💜 in Banda Aceh</span></div>
+    </div>
+  </footer>
+</div>
+
+<!-- BOOKING PANEL -->
+<div class="booking-panel" id="bookingPanel" onclick="closeBookingOutside(event)">
+  <div class="booking-sheet" style="position:relative">
+    <button class="sheet-close" onclick="closeBooking()">✕</button>
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Konfirmasi Booking</div>
+    <div style="background:var(--pu6);border-radius:var(--r-sm);padding:16px;margin-bottom:24px;border:1px solid var(--pu5)">
+      <div style="font-weight:700;font-size:15px" id="bsName">—</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:4px" id="bsDetail">—</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+        <span style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--pu2)" id="bsPrice">—</span>
+        <span style="font-size:12px;color:var(--muted)">+ Rp 15.000 ongkir</span>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Nama Lengkap</label><input class="form-ctrl" id="bName" placeholder="Nama kamu"/></div>
+    <div class="form-group"><label class="form-label">Nomor WhatsApp</label><input class="form-ctrl" id="bPhone" placeholder="08xxxxxxxxxx"/></div>
+    <div class="form-group"><label class="form-label">Alamat Lengkap</label><input class="form-ctrl" id="bAddr" placeholder="Jalan, nomor rumah, kelurahan, kecamatan..."/></div>
+    <div class="form-group">
+      <label class="form-label">Metode Pembayaran</label>
+      <select class="form-ctrl" id="bPay">
+        <option value="bca">Transfer Bank BCA</option>
+        <option value="gopay">GoPay</option>
+        <option value="ovo">OVO</option>
+        <option value="dana">Dana</option>
+        <option value="cod">Bayar di Tempat (COD)</option>
+      </select>
+    </div>
+    <button class="btn-pu w-full mt-4" style="padding:14px;font-size:15px" id="bookBtn" onclick="submitBooking()">Konfirmasi Booking</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════
+     ADMIN SCREEN
+══════════════════════════ -->
+<div id="adminScreen" class="screen">
+  <aside class="admin-sidebar">
+    <div class="admin-logo"><div class="admin-logo-txt"><img class="brand-logo admin-logo-icon" src="assets/void-play-box.png" alt=""/>Void Play Box</div><div class="admin-logo-sub">Panel Admin</div></div>
+    <nav class="admin-nav">
+      <div class="anav-group">Dashboard</div>
+      <div class="anav-item active" onclick="adminNav('dashboard',this)"><span class="anav-icon">📊</span>Overview</div>
+      <div class="anav-group">Operasional</div>
+      <div class="anav-item" onclick="adminNav('orders',this)"><span class="anav-icon">📋</span>Pesanan<div class="anav-badge" id="orderBadge">0</div></div>
+      <div class="anav-item" onclick="adminNav('inventory',this)"><span class="anav-icon">📦</span>Inventaris</div>
+      <div class="anav-item" onclick="adminNav('couriers',this)"><span class="anav-icon">🛵</span>Kurir</div>
+      <div class="anav-item" onclick="adminNav('chat',this)"><span class="anav-icon">💬</span>Chat<div class="anav-badge" id="chatBadge" style="display:none">0</div></div>
+      <div class="anav-group">Lainnya</div>
+      <div class="anav-item" onclick="adminNav('reports',this)"><span class="anav-icon">📈</span>Laporan</div>
+    </nav>
+    <div class="admin-user">
+      <div class="admin-user-av">A</div>
+      <div><div class="admin-user-name">Admin Void Play Box</div><div class="admin-user-role">Super Admin</div></div>
+    </div>
+  </aside>
+  <div class="admin-main">
+    <div class="admin-topbar">
+      <h2 id="adminTitle">Dashboard Overview</h2>
+      <div class="notif-btn">🔔<div class="notif-dot"></div></div>
+      <div class="admin-user-av">A</div>
+      <button class="btn-logout" onclick="logout()">Keluar</button>
+    </div>
+    <div class="admin-content">
+
+      <!-- DASHBOARD -->
+      <div class="admin-section active" id="adm-dashboard">
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-icon-wrap" style="background:#EDE9FE">📋</div><div class="kpi-label">Total Pesanan Aktif</div><div class="kpi-val" id="kpiOrders">–</div><div class="kpi-change" id="kpiSub1"></div></div>
+          <div class="kpi-card"><div class="kpi-icon-wrap" style="background:#D1FAE5">💰</div><div class="kpi-label">Pendapatan Bulan Ini</div><div class="kpi-val" id="kpiRevenue">–</div><div class="kpi-change" id="kpiSub2"></div></div>
+          <div class="kpi-card"><div class="kpi-icon-wrap" style="background:#FEF3C7">🎮</div><div class="kpi-label">Unit PS Terpakai</div><div class="kpi-val" id="kpiUnits">–</div><div class="kpi-change" id="kpiSub3"></div></div>
+          <div class="kpi-card"><div class="kpi-icon-wrap" style="background:#FEE2E2">⭐</div><div class="kpi-label">Rating Rata-rata</div><div class="kpi-val" id="kpiRating">–</div><div class="kpi-change" id="kpiSub4"></div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px">
+          <div class="chart-card">
+            <div class="chart-head"><div class="chart-title">Pendapatan 7 Hari Terakhir</div></div>
+            <div class="chart-canvas" id="revenueChart"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-head"><div class="chart-title">Paket Terpopuler</div></div>
+            <div id="popularPkgs" style="display:flex;flex-direction:column;gap:12px;padding-top:8px"></div></div>
+        </div>
+      </div>
+
+      <!-- ORDERS -->
+      <div class="admin-section" id="adm-orders">
+        <div class="table-wrap">
+          <div class="table-head">
+            <div class="table-title">Daftar Pesanan</div>
+            <input class="table-search" placeholder="Cari pesanan..." oninput="filterTable(this.value)"/>
+          </div>
+          <table id="ordersTable">
+            <thead><tr><th>ID Pesanan</th><th>Pelanggan</th><th>Paket</th><th>Total</th><th>Status</th><th>Kurir</th><th>Aksi</th></tr></thead>
+            <tbody id="ordersBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- INVENTORY -->
+      <div class="admin-section" id="adm-inventory">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+          <div><h3 style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800">Inventaris Unit PS</h3><p style="font-size:14px;color:var(--muted);margin-top:4px"><span id="invSummary">memuat…</span></p></div>
+          <button class="btn-pu" onclick="addInventory()">+ Tambah Unit</button>
+        </div>
+        <div class="inv-grid" id="invGrid"></div>
+      </div>
+
+      <!-- COURIERS -->
+      <div class="admin-section" id="adm-couriers">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+          <div><h3 style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800">Manajemen Kurir</h3><p style="font-size:14px;color:var(--muted);margin-top:4px"><span id="courSummary">memuat…</span></p></div>
+          <button class="btn-pu" onclick="addCourier()">+ Tambah Kurir</button>
+        </div>
+        <div class="courier-grid" id="courierGrid"></div>
+      </div>
+
+      <!-- CHAT -->
+      <div class="admin-section" id="adm-chat">
+        <div class="chat-wrap">
+          <div class="chat-list"><div class="chat-list-head">💬 Percakapan Pelanggan</div><div id="admRooms"></div></div>
+          <div class="chat-main-area">
+            <div class="chat-top"><div class="chat-top-name" id="admChatHead">Pilih percakapan</div></div>
+            <div class="chat-msgs" id="admChatMsgs"></div>
+            <div class="chat-input-row"><input class="chat-in" id="admChatIn" placeholder="Balas pesan..." onkeydown="if(event.key==='Enter')sendAdminChat()"/><button class="chat-send-btn" onclick="sendAdminChat()">➤</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REPORTS -->
+      <div class="admin-section" id="adm-reports">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div class="chart-card"><div class="chart-head"><div class="chart-title">Pesanan per Bulan (Tahun Ini)</div></div><div class="chart-canvas" id="monthChart"></div></div>
+          <div class="chart-card">
+            <div class="chart-head"><div class="chart-title">Ringkasan Kinerja</div></div>
+            <div id="summaryList" style="display:flex;flex-direction:column;gap:16px;padding-top:8px"></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-ov" id="modalOv" onclick="closeModal(event)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    <div class="modal-icon">🎉</div>
+    <div class="modal-title">Booking Berhasil!</div>
+    <div class="modal-sub">Pesananmu sudah kami terima. Kurir akan segera menghubungimu via WhatsApp dan mengantarkan PS ke rumahmu dalam 1–3 jam.</div>
+    <div style="background:var(--pu6);border-radius:var(--r-sm);padding:14px;margin-bottom:20px">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Nomor Pesanan</div>
+      <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--pu2)" id="modalOrderId">#PBX-...</div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn-sm w-full" style="flex:1;padding:12px" onclick="closeModalDirect()">Tutup</button>
+      <button class="btn-pu" style="flex:1;padding:12px" onclick="closeModalDirect();userScroll('delivery')">🗺️ Lacak Kurir</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+
+<!-- MODAL FORM (tambah/edit admin, detail pesanan) -->
+<div class="modal-ov" id="formOv" onclick="if(event.target===this)closeForm()">
+  <div class="modal-box" style="text-align:left">
+    <button class="modal-close" onclick="closeForm()">✕</button>
+    <div class="modal-title" id="formTitle" style="margin-bottom:16px"></div>
+    <div id="formBody"></div>
+    <button class="btn-pu w-full mt-4" id="formSubmit" style="padding:12px">Simpan</button>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/tutorials.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/user.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>
