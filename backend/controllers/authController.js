@@ -1,109 +1,84 @@
-﻿
 const bcrypt = require('bcryptjs');
-const jwt    = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
-const { getDb } = require('../config/database');
+const { query } = require('../config/database');
 const { ok, fail } = require('../middleware/errorHandler');
 
-// ── Register ──────────────────────────────────────────────
 async function register(req, res, next) {
   try {
     const { name, email, phone, password, address } = req.body;
-    if (!name || !email || !password) {
-      return fail(res, 'Nama, email, dan password wajib diisi.');
-    }
-    if (password.length < 6) {
-      return fail(res, 'Password minimal 6 karakter.');
-    }
-
-    const db = getDb();
-    const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email.toLowerCase().trim());
-    if (existing) return fail(res, 'Email sudah terdaftar.', 409);
-
+    if (!name || !email || !password) return fail(res, 'Nama, email, dan password wajib diisi.');
+    if (password.length < 6) return fail(res, 'Password minimal 6 karakter.');
+    const cleanEmail = email.toLowerCase().trim();
+    const existing = await query('SELECT id FROM users WHERE email = $1', [cleanEmail]);
+    if (existing.rows[0]) return fail(res, 'Email sudah terdaftar.', 409);
     const hash = bcrypt.hashSync(password, 10);
-    const uuid = uuidv4();
-    const result = db.prepare(`
-      INSERT INTO users (uuid, name, email, phone, password, role, address)
-      VALUES (?, ?, ?, ?, ?, 'user', ?)
-    `).run(uuid, name.trim(), email.toLowerCase().trim(), phone || null, hash, address || null);
-
-    const user = db.prepare('SELECT id, uuid, name, email, role FROM users WHERE id = ?').get(result.lastInsertRowid);
-    const token = generateToken(user);
-
-    return ok(res, { user, token }, 'Registrasi berhasil!', 201);
-  } catch (err) { next(err); }
+    const result = await query(
+      `INSERT INTO users (uuid, name, email, phone, password, role, address)
+       VALUES ($1,$2,$3,$4,$5,'user',$6)
+       RETURNING id, uuid, name, email, role`,
+      [uuidv4(), name.trim(), cleanEmail, phone || null, hash, address || null]
+    );
+    const user = result.rows[0];
+    return ok(res, { user, token: generateToken(user) }, 'Registrasi berhasil!', 201);
+  } catch (err) { return next(err); }
 }
 
-// ── Login ─────────────────────────────────────────────────
 async function login(req, res, next) {
   try {
     const { email, password } = req.body;
     if (!email || !password) return fail(res, 'Email dan password wajib diisi.');
-
-    const db = getDb();
-    const user = db.prepare('SELECT * FROM users WHERE email = ? AND is_active = 1').get(email.toLowerCase().trim());
-    if (!user) return fail(res, 'Email atau password salah.', 401);
-
-    const match = bcrypt.compareSync(password, user.password);
-    if (!match) return fail(res, 'Email atau password salah.', 401);
-
-    const token = generateToken(user);
-    const { password: _, ...safeUser } = user;
-
-    return ok(res, { user: safeUser, token }, 'Login berhasil!');
-  } catch (err) { next(err); }
+    const result = await query('SELECT * FROM users WHERE email = $1 AND is_active = 1', [email.toLowerCase().trim()]);
+    const user = result.rows[0];
+    if (!user || !bcrypt.compareSync(password, user.password)) return fail(res, 'Email atau password salah.', 401);
+    const { password: omitted, ...safeUser } = user;
+    return ok(res, { user: safeUser, token: generateToken(user) }, 'Login berhasil!');
+  } catch (err) { return next(err); }
 }
 
-// ── Get Profile ───────────────────────────────────────────
-function getProfile(req, res, next) {
+async function getProfile(req, res, next) {
   try {
-    const db = getDb();
-    const user = db.prepare(`
-      SELECT id, uuid, name, email, phone, role, address, avatar, created_at
-      FROM users WHERE id = ?
-    `).get(req.user.id);
-    return ok(res, { user });
-  } catch (err) { next(err); }
+    const result = await query(
+      'SELECT id, uuid, name, email, phone, role, address, avatar, created_at FROM users WHERE id = $1',
+      [req.user.id]
+    );
+    return ok(res, { user: result.rows[0] || null });
+  } catch (err) { return next(err); }
 }
 
-// ── Update Profile ────────────────────────────────────────
 async function updateProfile(req, res, next) {
   try {
     const { name, phone, address } = req.body;
-    const db = getDb();
-    db.prepare(`
-      UPDATE users SET name = ?, phone = ?, address = ?, updated_at = datetime('now')
-      WHERE id = ?
-    `).run(name || req.user.name, phone || null, address || null, req.user.id);
-    const updated = db.prepare('SELECT id, uuid, name, email, phone, role, address FROM users WHERE id = ?').get(req.user.id);
-    return ok(res, { user: updated }, 'Profil berhasil diperbarui.');
-  } catch (err) { next(err); }
+    const result = await query(
+      `UPDATE users SET name = $1, phone = $2, address = $3, updated_at = CURRENT_TIMESTAMP
+       WHERE id = $4 RETURNING id, uuid, name, email, phone, role, address`,
+      [name || req.user.name, phone || null, address || null, req.user.id]
+    );
+    return ok(res, { user: result.rows[0] }, 'Profil berhasil diperbarui.');
+  } catch (err) { return next(err); }
 }
 
-// ── Change Password ───────────────────────────────────────
 async function changePassword(req, res, next) {
   try {
     const { oldPassword, newPassword } = req.body;
     if (!oldPassword || !newPassword) return fail(res, 'Password lama dan baru wajib diisi.');
     if (newPassword.length < 6) return fail(res, 'Password baru minimal 6 karakter.');
-
-    const db = getDb();
-    const user = db.prepare('SELECT password FROM users WHERE id = ?').get(req.user.id);
-    if (!bcrypt.compareSync(oldPassword, user.password)) return fail(res, 'Password lama salah.', 401);
-
-    db.prepare('UPDATE users SET password = ?, updated_at = datetime(\'now\') WHERE id = ?')
-      .run(bcrypt.hashSync(newPassword, 10), req.user.id);
+    const result = await query('SELECT password FROM users WHERE id = $1', [req.user.id]);
+    const user = result.rows[0];
+    if (!user || !bcrypt.compareSync(oldPassword, user.password)) return fail(res, 'Password lama salah.', 401);
+    await query('UPDATE users SET password = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2', [bcrypt.hashSync(newPassword, 10), req.user.id]);
     return ok(res, {}, 'Password berhasil diubah.');
-  } catch (err) { next(err); }
+  } catch (err) { return next(err); }
 }
 
 function generateToken(user) {
+  if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+    throw new Error('JWT_SECRET belum diatur atau terlalu pendek (gunakan string acak minimal 32 karakter).');
+  }
   return jwt.sign(
     { id: user.id, email: user.email, role: user.role },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
   );
 }
-
 module.exports = { register, login, getProfile, updateProfile, changePassword };
-

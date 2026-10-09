@@ -1,34 +1,26 @@
-﻿
-// Global error handler
 function errorHandler(err, req, res, next) {
   console.error(`[ERROR] ${new Date().toISOString()} - ${err.message}`);
-  console.error(err.stack);
+  if (process.env.NODE_ENV !== 'production' && err.stack) console.error(err.stack);
 
-  // SQLite constraint errors
-  if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
-    return res.status(409).json({ success: false, message: 'Data sudah ada (duplikasi).' });
+  // PostgreSQL constraint errors: unique, foreign key, check, not-null.
+  if (['23505', '23503', '23514', '23502'].includes(err.code)) {
+    const status = err.code === '23505' ? 409 : 400;
+    return res.status(status).json({ success: false, message: err.code === '23505' ? 'Data sudah ada (duplikasi).' : 'Data tidak memenuhi aturan database.' });
   }
-  if (err.code && err.code.startsWith('SQLITE_')) {
-    return res.status(500).json({ success: false, message: 'Terjadi kesalahan database.' });
+  if (err.status || err.statusCode) {
+    return res.status(err.status || err.statusCode).json({ success: false, message: err.message || 'Permintaan gagal.' });
   }
-
-  const status = err.status || err.statusCode || 500;
-  const message = err.message || 'Terjadi kesalahan server.';
-  res.status(status).json({ success: false, message });
+  const message = process.env.NODE_ENV === 'production' ? 'Terjadi kesalahan server.' : (err.message || 'Terjadi kesalahan server.');
+  return res.status(500).json({ success: false, message });
 }
 
-// 404 handler
 function notFound(req, res) {
   res.status(404).json({ success: false, message: `Route ${req.method} ${req.path} tidak ditemukan.` });
 }
-
-// Response helpers
 function ok(res, data = {}, message = 'Berhasil', statusCode = 200) {
   return res.status(statusCode).json({ success: true, message, data });
 }
-
 function fail(res, message = 'Gagal', statusCode = 400) {
   return res.status(statusCode).json({ success: false, message });
 }
-
 module.exports = { errorHandler, notFound, ok, fail };

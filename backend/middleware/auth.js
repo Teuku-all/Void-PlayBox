@@ -1,44 +1,39 @@
-﻿
 const jwt = require('jsonwebtoken');
-const { getDb } = require('../config/database');
+const { query } = require('../config/database');
 
-// Verifikasi token JWT
-function authenticate(req, res, next) {
+async function authenticate(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ success: false, message: 'Token tidak ditemukan. Silakan login.' });
   }
-
-  const token = authHeader.split(' ')[1];
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const db = getDb();
-    const user = db.prepare('SELECT id, uuid, name, email, role, is_active FROM users WHERE id = ?').get(decoded.id);
-    if (!user || !user.is_active) {
+    const decoded = jwt.verify(authHeader.split(' ')[1], process.env.JWT_SECRET);
+    const result = await query(
+      'SELECT id, uuid, name, email, role, is_active FROM users WHERE id = $1',
+      [decoded.id]
+    );
+    const user = result.rows[0];
+    if (!user || Number(user.is_active) !== 1) {
       return res.status(401).json({ success: false, message: 'Akun tidak ditemukan atau tidak aktif.' });
     }
     req.user = user;
-    next();
+    return next();
   } catch (err) {
-    return res.status(401).json({ success: false, message: 'Token tidak valid atau sudah kadaluarsa.' });
+    if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
+      return res.status(401).json({ success: false, message: 'Token tidak valid atau sudah kadaluarsa.' });
+    }
+    return next(err);
   }
 }
-
-// Hanya admin
 function requireAdmin(req, res, next) {
   if (!req.user || req.user.role !== 'admin') {
     return res.status(403).json({ success: false, message: 'Akses ditolak. Hanya admin yang bisa mengakses ini.' });
   }
-  next();
+  return next();
 }
-
-// Admin atau pemilik data sendiri
 function requireAdminOrSelf(req, res, next) {
-  const targetId = parseInt(req.params.userId || req.params.id);
-  if (req.user.role === 'admin' || req.user.id === targetId) {
-    return next();
-  }
+  const targetId = parseInt(req.params.userId || req.params.id, 10);
+  if (req.user.role === 'admin' || Number(req.user.id) === targetId) return next();
   return res.status(403).json({ success: false, message: 'Akses ditolak.' });
 }
-
 module.exports = { authenticate, requireAdmin, requireAdminOrSelf };
