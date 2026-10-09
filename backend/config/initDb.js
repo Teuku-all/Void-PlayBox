@@ -78,7 +78,7 @@ async function createSchemaAndSeed() {
       inventory_id INTEGER REFERENCES inventory(id),
       courier_id INTEGER REFERENCES couriers(id),
       status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','confirmed','preparing','on_delivery','delivered','active','returning','completed','cancelled')),
-      payment_method TEXT NOT NULL CHECK (payment_method IN ('bca','gopay','ovo','dana','cod')),
+      payment_method TEXT NOT NULL CHECK (payment_method IN ('bca','qris','gopay','ovo','dana','cod')),
       payment_status TEXT NOT NULL DEFAULT 'unpaid' CHECK (payment_status IN ('unpaid','paid','refunded')),
       subtotal INTEGER NOT NULL,
       delivery_fee INTEGER NOT NULL DEFAULT 15000,
@@ -123,7 +123,9 @@ async function createSchemaAndSeed() {
     'CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at)',
     'CREATE INDEX IF NOT EXISTS idx_chat_room_id ON chat_messages(room_id)',
     'CREATE INDEX IF NOT EXISTS idx_tracking_order_id ON order_tracking(order_id)',
-    'CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)'
+    'CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)',
+    `ALTER TABLE orders DROP CONSTRAINT IF EXISTS orders_payment_method_check`,
+    `ALTER TABLE orders ADD CONSTRAINT orders_payment_method_check CHECK (payment_method IN ('bca','qris','gopay','ovo','dana','cod'))`
   ];
 
   for (const statement of statements) await query(statement);

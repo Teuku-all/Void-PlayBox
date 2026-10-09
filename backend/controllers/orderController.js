@@ -19,7 +19,7 @@ async function create(req, res, next) {
     const packageResult = await query('SELECT * FROM packages WHERE id = $1 AND is_active = 1', [package_id]);
     const pkg = packageResult.rows[0];
     if (!pkg) return fail(res, 'Paket tidak ditemukan.', 404);
-    if (!['bca', 'gopay', 'ovo', 'dana', 'cod'].includes(payment_method)) return fail(res, 'Metode pembayaran tidak valid.');
+    if (!['qris', 'gopay', 'ovo', 'dana', 'cod'].includes(payment_method)) return fail(res, 'Metode pembayaran tidak valid.');
     const stock = await query("SELECT COUNT(*)::int AS count FROM inventory WHERE ps_type = $1 AND status = 'available'", [pkg.ps_type]);
     if (Number(stock.rows[0].count) < 1) return fail(res, 'Unit untuk paket ini sedang habis.', 409);
     const deliveryFee = 15000;
