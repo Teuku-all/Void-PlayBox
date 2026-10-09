@@ -380,6 +380,9 @@ body{font-family:'Manrope',sans-serif;background:var(--pu6);color:var(--ink);ove
 .admin-user-av{width:36px;height:36px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:white;font-size:14px}
 .admin-user-name{font-size:13px;font-weight:600;color:white}
 .admin-user-role{font-size:11px;color:rgba(255,255,255,.5)}
+.admin-sidebar-logout{width:calc(100% - 32px);margin:0 16px 20px;padding:11px 16px;display:flex;align-items:center;gap:12px;border:1px solid rgba(255,255,255,.2);border-radius:var(--r-sm);background:rgba(255,255,255,.08);color:white;font:600 13px 'Manrope',sans-serif;text-align:left;cursor:pointer;transition:background .2s,border-color .2s}
+.admin-sidebar-logout:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.4)}
+.admin-sidebar-logout span{width:20px;text-align:center;font-size:17px}
 
 .admin-main{margin-left:240px;flex:1;display:flex;flex-direction:column}
 .admin-topbar{background:white;padding:0 32px;height:64px;display:flex;align-items:center;border-bottom:1px solid var(--border);gap:16px;position:sticky;top:0;z-index:50}
