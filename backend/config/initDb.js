@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs');
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID } = require('node:crypto');
 const { query } = require('./database');
 
 let initPromise;
@@ -140,7 +140,7 @@ async function createSchemaAndSeed() {
     await query(
       `INSERT INTO users (uuid, name, email, password, role, address)
        VALUES ($1, $2, $3, $4, 'admin', $5) ON CONFLICT (email) DO NOTHING`,
-      [uuidv4(), 'Admin Void Play Box', email, hash, 'Banda Aceh, Aceh']
+      [randomUUID(), 'Admin Void Play Box', email, hash, 'Banda Aceh, Aceh']
     );
   }
 

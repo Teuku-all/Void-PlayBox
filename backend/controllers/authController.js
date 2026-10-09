@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID } = require('node:crypto');
 const { query } = require('../config/database');
 const { ok, fail } = require('../middleware/errorHandler');
 
@@ -17,7 +17,7 @@ async function register(req, res, next) {
       `INSERT INTO users (uuid, name, email, phone, password, role, address)
        VALUES ($1,$2,$3,$4,$5,'user',$6)
        RETURNING id, uuid, name, email, role`,
-      [uuidv4(), name.trim(), cleanEmail, phone || null, hash, address || null]
+      [randomUUID(), name.trim(), cleanEmail, phone || null, hash, address || null]
     );
     const user = result.rows[0];
     return ok(res, { user, token: generateToken(user) }, 'Registrasi berhasil!', 201);
