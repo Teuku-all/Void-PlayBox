@@ -151,6 +151,21 @@
     </div>
   </div>
 
+  <!-- GAME COVERS -->
+  <section id="games" class="games-section">
+    <div class="content games-content">
+      <div class="games-heading">
+        <div class="sec-header"><h2>Game Tersedia</h2><p>Pilih game favoritmu untuk menemani sesi bermain.</p></div>
+      </div>
+      <div class="games-showcase" aria-label="Carousel cover game">
+        <button class="games-arrow games-arrow-prev" type="button" aria-label="Game sebelumnya" onclick="changeGame(-1)">‹</button>
+        <div class="games-stage" id="gamesCarousel" tabindex="0" aria-live="polite"></div>
+        <button class="games-arrow games-arrow-next" type="button" aria-label="Game berikutnya" onclick="changeGame(1)">›</button>
+      </div>
+      <div class="games-pagination" id="gamesPagination" aria-label="Pilih game"></div>
+    </div>
+  </section>
+
   <!-- PACKAGES -->
   <section id="packages">
     <div class="content" style="padding-top:0">
@@ -435,6 +450,7 @@
 <script src="js/ui.js"></script>
 <script src="js/nav.js"></script>
 <script src="js/tutorials.js"></script>
+<script src="js/games.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/user.js"></script>
 <script src="js/admin.js"></script>
