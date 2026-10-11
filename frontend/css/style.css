@@ -117,6 +117,11 @@ body{font-family:'Manrope',sans-serif;background:var(--pu6);color:var(--ink);ove
 .btn-login:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(124,58,237,.45)}
 .btn-login:active{transform:translateY(0)}
 .btn-login:disabled{opacity:.7;cursor:wait;transform:none}
+.auth-divider{display:flex;align-items:center;gap:12px;margin:22px 0 16px;color:var(--muted);font-size:11px}
+.auth-divider::before,.auth-divider::after{content:"";height:1px;flex:1;background:var(--border)}
+.google-signin-wrap{display:flex;justify-content:center;min-height:40px}
+.google-signin-wrap iframe{max-width:100%}
+.google-auth-message{min-height:18px;margin-top:8px;text-align:center;color:var(--muted);font-size:12px}
 
 /* ════════════════════════════════
    SHARED NAV

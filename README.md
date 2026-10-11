@@ -34,6 +34,8 @@ npm install
 npm run dev
 ```
 
+Untuk mengaktifkan masuk/daftar dengan Google, buat OAuth Client ID bertipe **Web application** di Google Cloud Console, tambahkan domain frontend ke Authorized JavaScript origins (misalnya `http://localhost:3000`), lalu isi `GOOGLE_CLIENT_ID` di `.env`. Tanpa Client ID, formulir email/password tetap bisa digunakan dan tombol Google akan menampilkan bahwa fitur belum dikonfigurasi.
+
 Buka http://localhost:3000. Jalankan melalui server ini agar frontend dapat mengakses `/api`.
 
 Akun demo: `admin@playbox.id / admin123` dan `user@playbox.id / user123`.

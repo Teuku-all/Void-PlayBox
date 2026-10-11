@@ -15,6 +15,8 @@ router.get('/health', (req, res) => res.json({ status: 'ok', service: 'Void Play
 // Auth
 router.post('/auth/register', authCtrl.register);
 router.post('/auth/login', authCtrl.login);
+router.get('/auth/google/config', authCtrl.googleConfig);
+router.post('/auth/google', authCtrl.googleLogin);
 router.get('/auth/profile', auth.authenticate, authCtrl.getProfile);
 router.put('/auth/profile', auth.authenticate, authCtrl.updateProfile);
 router.put('/auth/change-password', auth.authenticate, authCtrl.changePassword);

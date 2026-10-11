@@ -60,6 +60,7 @@ function logout() {
 
 // pulihkan sesi saat halaman dimuat ulang
 document.addEventListener('DOMContentLoaded', async () => {
+  initializeGoogleSignIn();
   if (!Session.token) return;
   try {
     const { user } = await api.get('/auth/profile');
@@ -67,3 +68,48 @@ document.addEventListener('DOMContentLoaded', async () => {
     enterApp(user);
   } catch { Session.clear(); }
 });
+
+async function initializeGoogleSignIn() {
+  const message = $('googleAuthMessage');
+  try {
+    const { clientId } = await api.get('/auth/google/config');
+    if (!clientId) {
+      message.textContent = 'Login Google belum dikonfigurasi.';
+      return;
+    }
+    const waitForGoogle = () => new Promise((resolve, reject) => {
+      let attempts = 0;
+      const timer = setInterval(() => {
+        if (window.google?.accounts?.id) { clearInterval(timer); resolve(); }
+        else if (++attempts > 100) { clearInterval(timer); reject(new Error('Google Sign-In gagal dimuat.')); }
+      }, 100);
+    });
+    await waitForGoogle();
+    google.accounts.id.initialize({ client_id: clientId, callback: handleGoogleCredential });
+    google.accounts.id.renderButton($('googleSignInButton'), {
+      type: 'standard', theme: 'outline', size: 'large', shape: 'pill',
+      text: 'continue_with', width: Math.min(352, $('googleSignInButton').clientWidth || 352),
+      locale: 'id'
+    });
+    message.textContent = '';
+  } catch (error) {
+    message.textContent = error.message || 'Login Google tidak tersedia saat ini.';
+  }
+}
+
+async function handleGoogleCredential(response) {
+  const button = $('authBtn');
+  const message = $('googleAuthMessage');
+  button.disabled = true;
+  message.textContent = 'Memverifikasi akun Google…';
+  try {
+    const data = await api.post('/auth/google', { credential: response.credential });
+    Session.save(data.token, data.user);
+    enterApp(data.user);
+  } catch (error) {
+    message.textContent = error.message;
+    toast(error.message, 'error');
+  } finally {
+    button.disabled = false;
+  }
+}
