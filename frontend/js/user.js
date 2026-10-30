@@ -6,6 +6,7 @@ const STORE_POS = [5.5483, 95.3238]; // Void Play Box Store, Banda Aceh
 async function enterUser(user) {
   $('userScreen').classList.add('active');
   $('userAvatar').textContent = (user.name || user.email || 'U').charAt(0).toUpperCase();
+  $('welcomeName').textContent = (user.name || 'Player').split(' ')[0];
   initMap();
   showTut('ps4', null);
   await Promise.all([loadPackages(), loadMyOrders()]);
@@ -20,37 +21,42 @@ function stopUserPolling() {
 
 /* ══════ PAKET ══════ */
 async function loadPackages() {
+  $('pkgGrid').innerHTML = '<div class="package-state" role="status">Menyiapkan paket main untukmu…</div>';
+  $('pkgMore').hidden = true;
   try {
     PACKAGES = (await api.get('/packages')).packages;
+    if (PACKAGES.length) $('startingPrice').textContent = `Mulai ${rupiah(Math.min(...PACKAGES.map(p => p.price)))}`;
     renderPackages('all');
   } catch (e) {
-    $('pkgGrid').innerHTML = `<p style="color:var(--muted)">${esc(e.message)}</p>`;
+    $('pkgCount').textContent = '';
+    $('pkgGrid').innerHTML = `<div class="package-state" role="alert">Paket belum bisa dimuat. ${esc(e.message)}<button class="btn-sm" onclick="loadPackages()">Coba lagi</button></div>`;
   }
 }
 
 let pkgCat = 'all', pkgExpanded = false;
 
-/* Mobile: tab "Semua" hanya menampilkan 2 baris (4 kartu) + sedikit baris ke-3 yang memudar,
-   sisanya muncul setelah menekan "Lihat lebih banyak". */
+/* Hide complete cards so collapsed packages never leave invisible focus targets. */
 function applyPkgCollapse() {
   const grid = $('pkgGrid'), btn = $('pkgMore');
   if (!grid || !btn) return;
   grid.classList.remove('collapsed');
   grid.style.maxHeight = '';
   btn.hidden = true;
-  const cards = grid.children;
-  const isMobile = window.matchMedia('(max-width:600px)').matches;
-  if (!isMobile || pkgCat !== 'all' || pkgExpanded || cards.length <= 4) return;
-  const peek = 56; // tinggi baris ke-3 yang masih terlihat (px)
-  const top3 = cards[4].getBoundingClientRect().top - grid.getBoundingClientRect().top;
-  grid.style.maxHeight = (top3 + peek) + 'px';
-  grid.classList.add('collapsed');
-  btn.hidden = false;
+  const cards = [...grid.querySelectorAll('.pkg-card')];
+  const limit = window.matchMedia('(max-width:768px)').matches ? 3 : 6;
+  const collapsed = pkgCat === 'all' && !pkgExpanded && cards.length > limit;
+  cards.forEach((card, i) => { card.hidden = collapsed && i >= limit; });
+  btn.hidden = !collapsed;
+  btn.textContent = `Lihat semua ${cards.length} paket ↓`;
+  btn.setAttribute('aria-expanded', String(!collapsed));
+  btn.setAttribute('aria-controls', 'pkgGrid');
 }
 
 function expandPkg() {
+  const firstHidden = $('pkgGrid').querySelector('.pkg-card[hidden] .btn-pkg');
   pkgExpanded = true;
   applyPkgCollapse();
+  firstHidden?.focus({ preventScroll: true });
 }
 
 window.addEventListener('resize', applyPkgCollapse);
@@ -58,23 +64,28 @@ window.addEventListener('resize', applyPkgCollapse);
 function renderPackages(cat) {
   pkgCat = cat;
   const list = cat === 'all' ? PACKAGES : PACKAGES.filter(p => (p.catalog_group || p.category) === cat);
+  const groups = { personal: 'Personal', harian: 'Harian', hemat: 'Hemat' };
+  $('pkgCount').textContent = `${list.length} pilihan paket`;
   $('pkgGrid').innerHTML = list.map(p => `
-    <div class="pkg-card${p.is_popular ? ' featured' : ''}">
-      ${p.is_popular ? '<div class="pkg-popular">🔥 Paling Diminati</div>' : ''}
+    <article class="pkg-card${p.is_popular ? ' featured' : ''}">
+      <div class="pkg-card-top">
       <div class="pkg-icon-wrap">${PS_ICON[p.ps_type] || '🎮'}</div>
-      <div class="pkg-name">${esc(p.name)}</div>
-      <div class="pkg-dur">${esc(p.duration_label || `${p.duration} Hari`)}</div>
-      <div class="pkg-price">${rupiah(p.price)}<span>/paket · ongkir Rp 15.000</span></div>
+      ${p.is_popular ? '<span class="pkg-popular">✦ Favorit pemain</span>' : `<span class="pkg-category">${esc(groups[p.catalog_group || p.category] || 'Paket sewa')}</span>`}
+      </div>
+      <h3 class="pkg-name">${esc(p.name)}</h3>
+      <div class="pkg-dur"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>${esc(p.duration_label || `${p.duration} Hari`)}</div>
+      <div class="pkg-price">${rupiah(p.price)}<span>/ paket · sesuai durasi pilihan</span></div>
       <ul class="pkg-features">${p.features.map(f => `<li><span class="pkg-check">✓</span>${esc(f)}</li>`).join('')}</ul>
-      <button class="btn-pkg ${p.is_popular ? 'btn-pkg-main' : 'btn-pkg-outline'}" onclick="bookPkg(${p.id})">Pesan Sekarang</button>
-    </div>`).join('');
+      <button class="btn-pkg ${p.is_popular ? 'btn-pkg-main' : 'btn-pkg-outline'}" aria-label="${esc('Pilih ' + p.name)}" onclick="bookPkg(${p.id})">Pilih paket ini <span aria-hidden="true">↗</span></button>
+    </article>`).join('') || '<div class="package-state" role="status">Belum ada paket di kategori ini. Coba kategori lainnya, ya.</div>';
   applyPkgCollapse();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(applyPkgCollapse);
 }
 
 function filterPkg(cat, el) {
-  document.querySelectorAll('.pkg-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.pkg-tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-pressed', 'false'); });
   el.classList.add('active');
+  el.setAttribute('aria-pressed', 'true');
   pkgExpanded = false;
   renderPackages(cat);
 }

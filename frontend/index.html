@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="stylesheet" href="css/style.css"/>
+<link rel="stylesheet" href="css/customer.css"/>
 </head>
 <body>
 
@@ -65,11 +66,11 @@
       <div class="nav-logo"><img class="brand-logo nav-logo-icon" src="assets/void-play-box.png" alt=""/>Void Play Box</div>
     </header>
     <nav class="bottom-nav" aria-label="Navigasi utama">
-      <a class="nav-link active" onclick="userScroll('home',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1z"/></svg>Beranda</a>
-      <a class="nav-link" onclick="userScroll('packages',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 11h12v8H6zM8 11V8a4 4 0 0 1 8 0v3M4 14h2m12 0h2"/></svg>Paket</a>
-      <a class="nav-link" onclick="userScroll('delivery',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>Pengiriman</a>
-      <a class="nav-link" onclick="userScroll('chat-sec',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.7 7.4L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5Z"/></svg>Chat</a>
-      <a class="nav-link" onclick="userScroll('tutorial',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>Tutorial</a>
+      <a class="nav-link active" href="#home" onclick="event.preventDefault();userScroll('home',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1z"/></svg>Beranda</a>
+      <a class="nav-link" href="#packages" onclick="event.preventDefault();userScroll('packages',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 11h12v8H6zM8 11V8a4 4 0 0 1 8 0v3M4 14h2m12 0h2"/></svg>Paket</a>
+      <a class="nav-link" href="#delivery" onclick="event.preventDefault();userScroll('delivery',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>Pengiriman</a>
+      <a class="nav-link" href="#chat-sec" onclick="event.preventDefault();userScroll('chat-sec',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.7 7.4L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5Z"/></svg>Chat</a>
+      <a class="nav-link" href="#tutorial" onclick="event.preventDefault();userScroll('tutorial',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>Tutorial</a>
     </nav>
     <div class="nav-right">
       <div class="nav-avatar" id="userAvatar">U</div>
@@ -84,60 +85,57 @@
       <div class="hero-blur-2"></div>
       <div class="hero-inner">
         <div class="hero-text">
-          <div class="hero-eyebrow">⚡ Layanan Antar ke Rumah · Banda Aceh</div>
-          <h1 class="hero-h1">Main PS<br>Tanpa<br><em>Keluar Rumah</em></h1>
-          <p class="hero-p">Sewa PlayStation diantar langsung ke pintu rumahmu. Pilih paket, bayar, santai — kurir kami yang bawa dan pasang.</p>
+          <div class="hero-eyebrow">Banda Aceh · PlayStation rental</div>
+          <h1 class="hero-h1">Waktunya main.<br><em>Rumah jadi<br>arena.</em></h1>
+          <p class="hero-p">Dari mabar bareng teman sampai petualangan sendiri. Pilih paket favoritmu, kami antar PlayStation ke rumah.</p>
           <div class="hero-actions">
-            <button class="btn-hero btn-hero-primary" onclick="userScroll('packages')">Lihat Paket Sewa</button>
-            <button class="btn-hero btn-hero-ghost" onclick="userScroll('tutorial')">📺 Cara Pasang</button>
+            <button class="btn-hero btn-hero-primary" onclick="userScroll('packages')">Pilih paket main &nbsp; ↗</button>
+            <button class="btn-hero btn-hero-ghost" onclick="userScroll('games')">Jelajahi game</button>
           </div>
-          <div class="hero-stats">
-            <div class="hstat"><div class="hstat-val">500+</div><div class="hstat-lbl">Pelanggan</div></div>
-            <div class="hstat"><div class="hstat-val">3 Jam</div><div class="hstat-lbl">Antar Tercepat</div></div>
-            <div class="hstat"><div class="hstat-val">24/7</div><div class="hstat-lbl">Live Chat</div></div>
+          <div class="hero-assurances">
+            <span>Antar & pasang</span><span>2 controller</span><span>Bisa bayar COD</span>
           </div>
         </div>
         <div class="hero-visual">
-          <div class="hero-card-float">
-            <div class="hcard-row">
-              <div class="hcard-icon">🎮</div>
-              <div><div class="hcard-name">Paket Personal</div><div class="hcard-sub">PS4 Slim · 4 Jam · 2 Controller</div></div>
-              <div class="hcard-price">Rp 40K</div>
-            </div>
-            <div class="hcard-status">
-              <div style="display:flex;align-items:center;gap:8px"><div class="hcard-dot"></div><span class="hcard-status-txt">Tersedia sekarang</span></div>
-              <div class="hcard-badge">✓ Ready</div>
-            </div>
+          <div class="hero-gallery">
+            <img class="hero-game" src="assets/game-cover/fc26.png" alt="EA Sports FC 26"/>
+            <img class="hero-game" src="assets/game-cover/ghostoftsushima.png" alt="Ghost of Tsushima"/>
+            <img class="hero-game" src="assets/game-cover/ittakestwo.png" alt="It Takes Two"/>
+            <div class="hero-gallery-tag"><span aria-hidden="true">✦</span> Satu paket. Banyak petualangan.</div>
           </div>
-          <div class="hero-card-float">
-            <div class="hcard-row">
-              <div class="hcard-icon">🛵</div>
-              <div><div class="hcard-name">Kurir dalam Perjalanan</div><div class="hcard-sub">#PBX-001 · ETA 18 menit</div></div>
-            </div>
-            <div style="margin-top:12px">
-              <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:65%"></div></div>
-              <div style="font-size:12px;opacity:.75;margin-top:4px">Budi S. sedang menuju lokasimu</div>
-            </div>
-          </div>
+          <p class="hero-caption">SPORTS &nbsp; / &nbsp; ADVENTURE &nbsp; / &nbsp; MULTIPLAYER</p>
         </div>
       </div>
     </div>
-    <!-- MARQUEE -->
-    <div class="marquee-wrap">
-      <div class="marquee-inner">
-        <span class="marquee-item"><span class="marquee-dot"></span>PS4 Slim Tersedia</span>
-        <span class="marquee-item"><span class="marquee-dot"></span>PS4 Pro Tersedia</span>
-        <span class="marquee-item"><span class="marquee-dot"></span>PlayStation 5 Tersedia</span>
-        <span class="marquee-item"><span class="marquee-dot"></span>20+ Game Populer</span>
-        <span class="marquee-item"><span class="marquee-dot"></span>Antar Gratis Balik</span>
-        <span class="marquee-item"><span class="marquee-dot"></span>COD Tersedia</span>
-        <span class="marquee-item"><span class="marquee-dot"></span>PS4 Slim Tersedia</span>
-        <span class="marquee-item"><span class="marquee-dot"></span>PS4 Pro Tersedia</span>
-        <span class="marquee-item"><span class="marquee-dot"></span>PlayStation 5 Tersedia</span>
-        <span class="marquee-item"><span class="marquee-dot"></span>20+ Game Populer</span>
-        <span class="marquee-item"><span class="marquee-dot"></span>Antar Gratis Balik</span>
-        <span class="marquee-item"><span class="marquee-dot"></span>COD Tersedia</span>
+  </section>
+
+  <div class="content dashboard-content">
+    <div class="welcome-row">
+      <div><h2>Halo, <span id="welcomeName">Player</span> 👋</h2><p>Siap untuk sesi main berikutnya?</p></div>
+      <span class="welcome-label">Your next play starts here</span>
+    </div>
+    <div class="dashboard-shortcuts">
+      <a class="shortcut" href="#packages" onclick="event.preventDefault();userScroll('packages')"><span class="shortcut-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="4"/><path d="M7 10v5m-2-2.5h4m6-1h.01M18 14h.01"/></svg></span><div><strong>Cari paket main</strong><small id="startingPrice">Personal, harian & hemat</small></div><span class="shortcut-arrow" aria-hidden="true">↗</span></a>
+      <a class="shortcut" href="#delivery" onclick="event.preventDefault();userScroll('delivery')"><span class="shortcut-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg></span><div><strong>Lacak pesanan</strong><small>Pantau perjalanan PS-mu</small></div><span class="shortcut-arrow" aria-hidden="true">↗</span></a>
+      <a class="shortcut" href="#chat-sec" onclick="event.preventDefault();userScroll('chat-sec')"><span class="shortcut-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11a9 9 0 0 1-13 8l-5 2 2-5A9 9 0 1 1 21 11Z"/><path d="M8 11h8m-8 4h5"/></svg></span><div><strong>Butuh bantuan?</strong><small>Ngobrol dengan admin</small></div><span class="shortcut-arrow" aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+
+  <!-- PACKAGES -->
+  <section id="packages">
+    <div class="content" style="padding-top:0">
+      <div class="pricing-heading"><div class="sec-header"><span class="section-kicker">Pilih durasi, mulai keseruan</span><h2>Paket main, sesukamu.</h2><p>Main sebentar atau seharian? Ada paket untuk setiap rencana.</p></div><span class="pricing-count" id="pkgCount" role="status" aria-live="polite"></span></div>
+      <div class="pricing-toolbar">
+      <div class="pkg-tabs">
+        <button class="pkg-tab active" aria-pressed="true" onclick="filterPkg('all',this)">Semua</button>
+        <button class="pkg-tab" aria-pressed="false" onclick="filterPkg('personal',this)">Personal</button>
+        <button class="pkg-tab" aria-pressed="false" onclick="filterPkg('harian',this)">Harian</button>
+        <button class="pkg-tab" aria-pressed="false" onclick="filterPkg('hemat',this)">Paket Hemat</button>
       </div>
+      <p class="package-shipping-note"><span aria-hidden="true">↗</span> Antar ke rumah · Ongkir Rp 15.000 di luar harga paket</p>
+      </div>
+      <div class="pkg-grid" id="pkgGrid"></div>
+      <button class="pkg-more" id="pkgMore" type="button" onclick="expandPkg()" hidden>Lihat lebih banyak</button>
     </div>
   </section>
 
@@ -166,22 +164,6 @@
         <button class="games-arrow games-arrow-next" type="button" aria-label="Game berikutnya" onclick="changeGame(1)">›</button>
       </div>
       <div class="games-pagination" id="gamesPagination" aria-label="Pilih game"></div>
-    </div>
-  </section>
-
-  <!-- PACKAGES -->
-  <section id="packages">
-    <div class="content" style="padding-top:0">
-      <div class="sec-header"><h2>Paket Sewa</h2><p>Pilih sesi personal, sewa harian, atau paket hemat yang paling pas buatmu.</p></div>
-      <div class="pkg-tabs">
-        <button class="pkg-tab active" onclick="filterPkg('all',this)">Semua</button>
-        <button class="pkg-tab" onclick="filterPkg('personal',this)">Personal</button>
-        <button class="pkg-tab" onclick="filterPkg('harian',this)">Harian</button>
-        <button class="pkg-tab" onclick="filterPkg('hemat',this)">Paket Hemat</button>
-      </div>
-      <p class="package-shipping-note">Harga belum termasuk ongkir Rp 15.000.</p>
-      <div class="pkg-grid" id="pkgGrid"></div>
-      <button class="pkg-more" id="pkgMore" type="button" onclick="expandPkg()" hidden>Lihat lebih banyak</button>
     </div>
   </section>
 
