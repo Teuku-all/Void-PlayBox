@@ -6,7 +6,7 @@ const STORE_POS = [5.5483, 95.3238]; // Void Play Box Store, Banda Aceh
 async function enterUser(user) {
   $('userScreen').classList.add('active');
   $('userAvatar').textContent = (user.name || user.email || 'U').charAt(0).toUpperCase();
-  $('welcomeName').textContent = (user.name || 'Player').split(' ')[0];
+  $('welcomeName').textContent = (user.name?.trim() || 'teman main').split(' ')[0];
   initMap();
   showTut('ps4', null);
   await Promise.all([loadPackages(), loadMyOrders()]);
@@ -25,7 +25,7 @@ async function loadPackages() {
   $('pkgGrid').innerHTML = '<div class="package-state" role="status">Menyiapkan paket main untukmu…</div>';
   $('pkgMore').hidden = true;
   try {
-    PACKAGES = (await api.get('/packages')).packages;
+    PACKAGES = (await api.get('/packages')).packages.filter(p => ['ps4_slim', 'ps4_pro'].includes(p.ps_type));
     if (PACKAGES.length) $('startingPrice').textContent = `Mulai ${rupiah(Math.min(...PACKAGES.map(p => p.price)))}`;
     renderPackages('all');
   } catch (e) {
@@ -76,7 +76,7 @@ function renderPackages(cat) {
       <h3 class="pkg-name">${esc(p.name)}</h3>
       <div class="pkg-dur"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>${esc(p.duration_label || `${p.duration} Hari`)}</div>
       <div class="pkg-price">${rupiah(p.price)}<span>/ paket · sesuai durasi pilihan</span></div>
-      <ul class="pkg-features">${p.features.map(f => `<li><span class="pkg-check">✓</span>${esc(f)}</li>`).join('')}</ul>
+      <ul class="pkg-features">${[...new Set([...p.features, 'Mode bermain offline'])].map(f => `<li><span class="pkg-check">✓</span>${esc(f)}</li>`).join('')}</ul>
       <button class="btn-pkg ${p.is_popular ? 'btn-pkg-main' : 'btn-pkg-outline'}" aria-label="${esc('Pilih ' + p.name)}" onclick="bookPkg(${p.id})">Pilih paket ini <span aria-hidden="true">↗</span></button>
     </article>`).join('') || '<div class="package-state" role="status">Belum ada paket di kategori ini. Coba kategori lainnya, ya.</div>';
   applyPkgCollapse();

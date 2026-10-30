@@ -21,6 +21,7 @@ async function create(req, res, next) {
     const packageResult = await query('SELECT * FROM packages WHERE id = $1 AND is_active = 1', [package_id]);
     const pkg = packageResult.rows[0];
     if (!pkg) return fail(res, 'Paket tidak ditemukan.', 404);
+    if (!['ps4_slim', 'ps4_pro'].includes(pkg.ps_type)) return fail(res, 'Paket ini tidak tersedia. Void Play Box hanya menyediakan PS4.', 409);
     if (!['qris', 'gopay', 'ovo', 'dana', 'cod'].includes(payment_method)) return fail(res, 'Metode pembayaran tidak valid.');
     const stock = await query("SELECT COUNT(*)::int AS count FROM inventory WHERE ps_type = $1 AND status = 'available'", [pkg.ps_type]);
     if (Number(stock.rows[0].count) < 1) return fail(res, 'Unit untuk paket ini sedang habis.', 409);
@@ -189,8 +190,8 @@ async function getStats(req, res, next) {
         (SELECT COUNT(*)::int FROM orders WHERE created_at::date = CURRENT_DATE) AS orders_today,
         (SELECT COALESCE(SUM(total),0)::numeric FROM orders WHERE payment_status='paid' AND date_trunc('month',created_at)=date_trunc('month',CURRENT_TIMESTAMP)) AS revenue_month,
         (SELECT COALESCE(SUM(total),0)::numeric FROM orders WHERE payment_status='paid') AS revenue_total,
-        (SELECT COUNT(*)::int FROM inventory WHERE status='available') AS inventory_avail,
-        (SELECT COUNT(*)::int FROM inventory WHERE status='rented') AS inventory_rented,
+        (SELECT COUNT(*)::int FROM inventory WHERE status='available' AND ps_type IN ('ps4_slim','ps4_pro')) AS inventory_avail,
+        (SELECT COUNT(*)::int FROM inventory WHERE status='rented' AND ps_type IN ('ps4_slim','ps4_pro')) AS inventory_rented,
         (SELECT COUNT(*)::int FROM couriers WHERE status='active') AS couriers_active,
         (SELECT COALESCE(ROUND(AVG(rating)::numeric,1),5.0) FROM reviews) AS avg_rating
     `);

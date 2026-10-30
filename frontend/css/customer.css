@@ -24,19 +24,33 @@
 .hero-gallery-tag{position:absolute;bottom:0;z-index:4;background:#ffffff;color:#35214c;border-radius:12px;padding:12px 18px;box-shadow:0 8px 24px #14082640;font-size:12px;font-weight:700;display:flex;align-items:center;gap:12px}
 .hero-gallery-tag span{color:#7c3aed;font-size:20px}
 .hero-caption{text-align:center;color:#bfaed2;font-size:11px;margin-top:20px;letter-spacing:.3px}
-.dashboard-shortcuts{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:16px;max-width:1160px;margin:0 auto;padding:26px 0 0}
-.shortcut{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #e9e4ef;padding:18px 20px;border-radius:16px;text-align:left;color:var(--ink);text-decoration:none;transition:border-color .2s,transform .2s}
+.dashboard-panel{padding:28px;background:linear-gradient(120deg,#fff 65%,#f5effb);border:1px solid #e6deef;border-radius:22px;box-shadow:0 8px 28px #29103e04}
+.dashboard-shortcuts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0;padding:0}
+.shortcut{display:flex;align-items:flex-start;gap:14px;background:#fff;border:1px solid #e5dced;padding:20px 18px;border-radius:14px;text-align:left;color:var(--ink);text-decoration:none;transition:border-color .2s,transform .2s;min-width:0}
 .shortcut:hover{border-color:#b89ae4;transform:translateY(-2px)}
+.shortcut-primary{background:#f2eafa;border-color:#d9c4ee}
+.shortcut-primary .shortcut-icon{background:#7845b4;color:#fff}
 .shortcut-icon{width:42px;height:42px;border-radius:12px;background:#f0eafa;color:#7940bd;display:grid;place-items:center;flex-shrink:0}
 .shortcut-icon svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-.shortcut strong{display:block;font-size:13px;margin-bottom:4px}
-.shortcut small{display:block;font-size:11px;color:var(--muted);line-height:1.5}
-.shortcut-arrow{margin-left:auto;color:#8e7aa5}
+.shortcut strong{display:block;font-size:14px;font-weight:800;margin:0 0 5px;line-height:1.5}
+.shortcut small{display:block;font-size:11px;color:#7c6c88;line-height:1.65}
+.shortcut-meta{display:block;font-size:11px;font-weight:700;color:#7a49a3;margin-top:12px;line-height:1.5}
+.shortcut-arrow{margin-left:auto;color:#8e7aa5;font-size:16px;flex-shrink:0}
 .welcome-row{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:22px}
-.welcome-row h2{font-size:19px;font-family:'Syne',sans-serif;letter-spacing:-.3px}
-.welcome-row p{font-size:12px;color:var(--muted);margin-top:5px}
-.welcome-label{font-size:11px;color:#765897;border:1px solid #e5dbef;border-radius:99px;padding:7px 12px;white-space:nowrap}
-#userScreen .dashboard-content{padding-top:30px;padding-bottom:0}
+.welcome-eyebrow{display:block;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#9276a6;margin-bottom:7px}
+.welcome-row h2{font-size:24px;font-family:'Manrope',sans-serif;line-height:1.4;font-weight:800;letter-spacing:-.7px;overflow-wrap:anywhere}
+.welcome-row p{font-size:12px;color:#7c6c88;margin-top:5px;line-height:1.7}
+.welcome-label{display:inline-flex;align-items:center;gap:7px;font-size:10px;font-weight:700;color:#765897;background:#f1eaf9;border:1px solid #e5dbef;border-radius:99px;padding:9px 12px;white-space:nowrap}
+.welcome-label>span{font-size:7px;color:#9966c3}
+.dashboard-note{display:flex;align-items:center;gap:10px;margin-top:20px;padding-top:18px;border-top:1px solid #eae3f0}
+.dashboard-note-icon{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#efe8f7;color:#8c65aa;font-size:12px;font-weight:700;flex-shrink:0}
+.dashboard-note p{font-size:11px;color:#81708e;line-height:1.8;max-width:700px}
+.dashboard-note strong{font-weight:700;color:#604775;margin-right:5px}
+.dashboard-note a{margin-left:auto;color:#7c4a9f;text-decoration:none;white-space:nowrap;font-size:11px;font-weight:700;padding:10px 0;flex-shrink:0}
+#userScreen .dashboard-content{padding-top:24px;padding-bottom:0}
+.hero-h1,.sec-header h2,.how-item h4,.tut-hero h2{font-family:'Manrope',sans-serif}
+.hero-h1{font-weight:800;letter-spacing:-1.8px}
+.chat-admin-sub{font-size:11px;color:#9b85ad;margin-top:4px}
 .section-kicker{display:block;font-size:10px;font-weight:800;letter-spacing:1.8px;color:#8553b6;text-transform:uppercase;margin-bottom:12px}
 #packages .content{padding-top:54px!important}
 .pricing-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:26px}
@@ -98,11 +112,13 @@
  .hero-gallery::before{width:170px;height:170px;box-shadow:0 0 0 25px #ffffff04,0 0 0 50px #ffffff03}
  .hero-gallery-tag{font-size:10px;padding:10px 14px;bottom:0}.hero-caption{font-size:10px;margin-top:12px}
  #userScreen .dashboard-content{padding-top:24px;padding-bottom:0}
- .welcome-row{margin-bottom:18px}.welcome-row h2{font-size:17px}.welcome-row p{font-size:11px}.welcome-label{display:none}
- .dashboard-shortcuts{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:0}
- .shortcut{flex-direction:column;align-items:flex-start;padding:14px 10px;gap:10px;border-radius:14px}
+ .dashboard-panel{padding:20px;border-radius:18px}
+ .welcome-row{margin-bottom:18px;align-items:flex-start;flex-direction:column;gap:12px}.welcome-row h2{font-size:22px}.welcome-row p{font-size:12px}.welcome-label{display:inline-flex;font-size:9px;padding:7px 10px}.welcome-eyebrow{font-size:8px;letter-spacing:1.2px}
+ .dashboard-shortcuts{grid-template-columns:1fr;gap:10px;padding:0}
+ .shortcut{flex-direction:row;align-items:center;padding:16px;gap:12px;border-radius:12px}
  .shortcut-icon{width:32px;height:32px;border-radius:9px}.shortcut-icon svg{width:18px;height:18px}
- .shortcut strong{font-size:11px;line-height:1.5}.shortcut small{font-size:9px;line-height:1.5}.shortcut-arrow{display:none}
+ .shortcut strong{font-size:13px;line-height:1.5}.shortcut small{font-size:11px;line-height:1.5}.shortcut-arrow{display:block}.shortcut-meta{font-size:10px;margin-top:6px}
+ .dashboard-note{align-items:flex-start;flex-wrap:wrap;gap:9px;margin-top:16px;padding-top:16px}.dashboard-note-icon{display:none}.dashboard-note p{font-size:11px}.dashboard-note strong{display:block}.dashboard-note a{margin:0;font-size:11px;padding:2px 0;min-height:32px}
  .pricing-heading{gap:12px;align-items:flex-start;flex-direction:column;margin-bottom:20px}.pricing-count{font-size:11px;padding:0}
  .sec-header h2{font-size:27px}.sec-header p{font-size:12px}
  .section-kicker{font-size:9px;letter-spacing:1.4px;margin-bottom:8px}
@@ -136,3 +152,19 @@
 }
 @media(max-width:360px){.hero{padding-left:18px;padding-right:18px}.hero-actions{flex-wrap:wrap}.hero-actions .btn-hero{flex:1;font-size:11px}.nav-logo{font-size:13px}.nav-logo-icon{width:23px}.how-grid{grid-template-columns:1fr}.pricing-count{display:none}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}#userScreen *,#userScreen *::before,#userScreen *::after,.booking-panel,.booking-sheet{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Readable PS4 guides replace the empty video placeholder. */
+.tut-hero{padding:32px;margin-bottom:24px;text-align:left;background:#f0e9f8;border:1px solid #e4d7ef;color:#3d2353}
+.tut-hero h2{color:#3d2353;font-size:28px;letter-spacing:-.7px}
+.tut-hero p{color:#7a648b;font-size:13px;max-width:650px;line-height:1.8;margin:10px 0 0}
+.tut-tabs{justify-content:flex-start;gap:8px;flex-wrap:wrap}
+.tut-tab{font-family:'Manrope',sans-serif;font-size:12px;min-height:44px;border-radius:10px;padding:12px 18px}
+.ps4-guide{padding:28px;border:1px solid #e5dcec;border-radius:18px;background:#fff}
+.ps4-guide-heading{margin-bottom:24px}.ps4-guide-heading h3{font-size:20px;font-weight:800;color:#382047;letter-spacing:-.4px;margin-bottom:8px}.ps4-guide-heading p{font-size:12px;color:#84718f;line-height:1.8}
+.ps4-guide-steps{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:22px 28px}
+.ps4-guide-steps li{display:flex;align-items:flex-start;gap:13px;min-width:0}
+.ps4-step-number{flex-shrink:0;display:grid;place-items:center;background:#f3edf9;color:#8b60ac;width:34px;height:34px;border-radius:10px;font-size:11px;font-weight:800}
+.ps4-guide-steps h4{font-size:13px;line-height:1.5;margin-bottom:6px;color:#4f355f}.ps4-guide-steps p{font-size:12px;line-height:1.9;color:#84748e}
+.ps4-guide-note{display:flex;align-items:center;gap:20px;justify-content:space-between;border-top:1px solid #ede6f3;padding-top:20px;margin-top:24px}.ps4-guide-note p{font-size:11px;line-height:1.8;color:#8c759e;max-width:700px}.ps4-guide-note button{flex-shrink:0;min-height:42px}
+@media(max-width:1100px) and (min-width:769px){.dashboard-panel{padding:24px}.shortcut{padding:18px 12px;gap:10px;flex-wrap:wrap}.shortcut-arrow{display:none}.shortcut strong{font-size:13px}.dashboard-note{align-items:flex-start}.dashboard-note p{max-width:75%}}
+@media(max-width:600px){.tut-hero{padding:24px 20px}.tut-hero h2{font-size:23px}.tut-hero p{font-size:12px}.tut-tabs{gap:7px}.tut-tab{font-size:11px;padding:10px 12px}.ps4-guide{padding:22px 18px}.ps4-guide-steps{grid-template-columns:1fr;gap:22px}.ps4-guide-heading h3{font-size:18px}.ps4-guide-note{flex-direction:column;align-items:flex-start;gap:12px}.ps4-guide-note button{width:100%}}

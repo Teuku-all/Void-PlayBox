@@ -186,9 +186,7 @@ async function seedInventory() {
     ['PBX-PS4S-002', 'ps4_slim', 'PS4 Slim - Unit 02', 'available', 'good'],
     ['PBX-PS4S-003', 'ps4_slim', 'PS4 Slim - Unit 03', 'rented', 'good'],
     ['PBX-PS4P-001', 'ps4_pro', 'PS4 Pro - Unit 01', 'available', 'excellent'],
-    ['PBX-PS4P-002', 'ps4_pro', 'PS4 Pro - Unit 02', 'rented', 'excellent'],
-    ['PBX-PS5-001', 'ps5', 'PS5 - Unit 01', 'available', 'excellent'],
-    ['PBX-PS5-002', 'ps5', 'PS5 - Unit 02', 'maintenance', 'fair']
+    ['PBX-PS4P-002', 'ps4_pro', 'PS4 Pro - Unit 02', 'rented', 'excellent']
   ];
   for (const item of items) {
     await query(

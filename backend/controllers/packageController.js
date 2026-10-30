@@ -13,7 +13,7 @@ function presentPackage(pkg) {
 async function getAll(req, res, next) {
   try {
     const { category, ps_type } = req.query;
-    let sql = 'SELECT * FROM packages WHERE is_active = 1';
+    let sql = "SELECT * FROM packages WHERE is_active = 1 AND ps_type IN ('ps4_slim', 'ps4_pro')";
     const params = [];
     if (category) { params.push(category); sql += ` AND catalog_group = $${params.length}`; }
     if (ps_type) { params.push(ps_type); sql += ` AND ps_type = $${params.length}`; }
@@ -24,7 +24,7 @@ async function getAll(req, res, next) {
 }
 async function getOne(req, res, next) {
   try {
-    const result = await query('SELECT * FROM packages WHERE id = $1 AND is_active = 1', [req.params.id]);
+    const result = await query("SELECT * FROM packages WHERE id = $1 AND is_active = 1 AND ps_type IN ('ps4_slim', 'ps4_pro')", [req.params.id]);
     const pkg = result.rows[0];
     if (!pkg) return fail(res, 'Paket tidak ditemukan.', 404);
     return ok(res, { package: presentPackage(pkg) });
@@ -34,6 +34,7 @@ async function create(req, res, next) {
   try {
     const { name, category, ps_type, duration, price, description, features, is_popular } = req.body;
     if (!name || !category || !ps_type || !duration || !price || !features) return fail(res, 'Semua field wajib diisi.');
+    if (!['ps4_slim', 'ps4_pro'].includes(ps_type)) return fail(res, 'Void Play Box hanya menyediakan konsol PS4.');
     const group = category;
     const storedCategory = validCategories.includes(category) ? category : 'harian';
     const result = await query(
@@ -47,6 +48,7 @@ async function create(req, res, next) {
 async function update(req, res, next) {
   try {
     const { name, category, ps_type, duration, price, description, features, is_popular, is_active } = req.body;
+    if (!['ps4_slim', 'ps4_pro'].includes(ps_type)) return fail(res, 'Void Play Box hanya menyediakan konsol PS4.');
     const existing = await query('SELECT id FROM packages WHERE id = $1', [req.params.id]);
     if (!existing.rows[0]) return fail(res, 'Paket tidak ditemukan.', 404);
     const group = category;

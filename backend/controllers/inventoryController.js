@@ -4,7 +4,7 @@ const { ok, fail } = require('../middleware/errorHandler');
 async function getAll(req, res, next) {
   try {
     const { status, ps_type } = req.query;
-    let sql = 'SELECT * FROM inventory WHERE 1=1';
+    let sql = "SELECT * FROM inventory WHERE ps_type IN ('ps4_slim', 'ps4_pro')";
     const params = [];
     if (status) { params.push(status); sql += ` AND status = $${params.length}`; }
     if (ps_type) { params.push(ps_type); sql += ` AND ps_type = $${params.length}`; }
@@ -16,6 +16,7 @@ async function create(req, res, next) {
   try {
     const { serial_no, ps_type, name, condition, notes } = req.body;
     if (!serial_no || !ps_type || !name) return fail(res, 'serial_no, ps_type, dan name wajib diisi.');
+    if (!['ps4_slim', 'ps4_pro'].includes(ps_type)) return fail(res, 'Void Play Box hanya menyediakan konsol PS4.');
     const result = await query(
       `INSERT INTO inventory (serial_no, ps_type, name, condition, notes) VALUES ($1,$2,$3,$4,$5) RETURNING *`,
       [serial_no, ps_type, name, condition || 'good', notes || null]

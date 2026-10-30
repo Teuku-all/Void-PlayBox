@@ -11,7 +11,7 @@ function esc(v) {
 const parseDbDate = s => new Date(String(s).replace(' ', 'T') + 'Z');
 const fmtTime = s => parseDbDate(s).toLocaleTimeString('id', { hour: '2-digit', minute: '2-digit' });
 
-const PS_ICON = { ps4_slim: '🎮', ps4_pro: '⭐', ps5: '🚀' };
+const PS_ICON = { ps4_slim: '🎮', ps4_pro: '🎮' };
 
 const ORDER_STATUS = {
   pending:     { label: '⏳ Menunggu',       pill: 'pill-pending', step: 5 },

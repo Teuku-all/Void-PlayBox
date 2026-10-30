@@ -11,7 +11,7 @@ const INV_STATUS = {
   available: { cls: 'avail-yes', txt: 'Tersedia' },
   maintenance: { cls: 'avail-no', txt: 'Maintenance' },
 };
-const PS_OPTIONS = [{ value: 'ps4_slim', label: 'PS4 Slim' }, { value: 'ps4_pro', label: 'PS4 Pro' }, { value: 'ps5', label: 'PS5' }];
+const PS_OPTIONS = [{ value: 'ps4_slim', label: 'PS4 Slim' }, { value: 'ps4_pro', label: 'PS4 Pro' }];
 const COND_OPTIONS = ['excellent', 'good', 'fair', 'poor'].map(v => ({ value: v, label: v }));
 
 async function enterAdmin() {
@@ -180,9 +180,9 @@ function addInventory() {
   openForm({
     title: 'Tambah Unit PS',
     fields: [
-      { name: 'serial_no', label: 'Nomor Seri', placeholder: 'PBX-PS5-003' },
+      { name: 'serial_no', label: 'Nomor Seri', placeholder: 'PBX-PS4S-004' },
       { name: 'ps_type', label: 'Tipe', options: PS_OPTIONS },
-      { name: 'name', label: 'Nama Unit', placeholder: 'PS5 - Unit 03' },
+      { name: 'name', label: 'Nama Unit', placeholder: 'PS4 Slim - Unit 04' },
       { name: 'condition', label: 'Kondisi', options: COND_OPTIONS, value: 'good' },
     ],
     onSubmit: async d => { await api.post('/inventory', d); toast('Unit ditambahkan', 'success'); await loadInventory(); loadStats(); },
