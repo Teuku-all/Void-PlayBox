@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="stylesheet" href="css/style.css"/>
 <link rel="stylesheet" href="css/customer.css"/>
+<link rel="stylesheet" href="css/maps.css"/>
 </head>
 <body>
 
@@ -170,16 +171,28 @@
   <!-- DELIVERY -->
   <section id="delivery">
     <div class="content" style="padding-top:0">
-      <div class="sec-header"><h2>Lacak Pesananmu</h2><p>Pantau status pengiriman dan posisi kurir secara real-time.</p></div>
+      <div class="sec-header"><span class="section-kicker">Dari toko ke depan pintu</span><h2>Pengiriman, lebih jelas.</h2><p>Pantau pesanan dan tentukan titik pengantaran yang tepat.</p></div>
       <div id="trackList"></div>
       <!-- MAP -->
       <div class="map-wrap">
+        <div class="map-heading"><div><span class="section-kicker">Delivery map</span><h3>Perjalanan menuju kamu</h3></div><span class="map-update" id="mapUpdate" role="status">Peta area Banda Aceh</span></div>
         <div class="map-controls">
-          <select class="form-ctrl" id="trackSelect" style="max-width:300px;border-radius:99px;padding:9px 16px" onchange="trackOrder(+this.value)"></select>
-          <button class="btn-pu" style="padding:9px 18px;font-size:13px" onclick="refreshTracking(true)">Perbarui</button>
-          <button class="btn-sm" onclick="copyTrackCode()">Salin Kode</button>
+          <label class="map-order-select" for="trackSelect">Pesanan yang dilacak<select class="form-ctrl" id="trackSelect" onchange="trackOrder(+this.value)"><option value="">Belum ada pesanan</option></select></label>
+          <button class="btn-sm" id="refreshMapBtn" type="button" onclick="refreshTracking(true)" disabled>↻ Perbarui</button>
+          <button class="btn-sm" id="copyTrackBtn" type="button" onclick="copyTrackCode()" disabled>Salin kode</button>
         </div>
-        <div id="map"></div>
+        <div class="delivery-map-layout">
+          <div class="map-viewport"><div id="map" role="region" aria-label="Peta pengiriman dan lokasi saya"></div><button class="map-fit-btn" type="button" onclick="fitDeliveryMap()" aria-label="Tampilkan semua titik di peta">⊞ Semua titik</button><div class="map-legend"><span><i class="legend-store"></i>Toko</span><span><i class="legend-home"></i>Tujuan</span><span><i class="legend-self"></i>Lokasi saya</span><span><i class="legend-courier"></i>Kurir</span></div></div>
+          <aside class="location-card">
+            <div class="location-card-icon" aria-hidden="true">◎</div><h4>Tentukan titikmu</h4><p>Gunakan GPS perangkat untuk menandai lokasimu di peta.</p>
+            <button class="btn-location" id="locateMapBtn" type="button" onclick="locateMe('delivery')">◎ Gunakan lokasi saya</button>
+            <p class="location-status" id="mapLocationStatus" role="status" aria-live="polite">Lokasi diambil saat tombol ditekan. Titik dibagikan ke admin setelah disimpan pada pesanan.</p>
+            <div class="location-details" id="mapLocationDetails" hidden><span class="location-caption">TITIK PILIHANMU</span><strong id="mapLocationCoords"></strong><p id="mapLocationAddress"></p><button class="location-text-btn" type="button" onclick="clearDeliveryLocation()">Hapus titik pilihan</button></div>
+            <button class="btn-location btn-location-save" id="saveLocationBtn" type="button" onclick="saveOrderLocation()" hidden>Simpan titik ke pesanan</button>
+            <p class="location-help" id="saveLocationHint">Titik pilihan juga bisa digunakan untuk booking baru.</p>
+          </aside>
+        </div>
+        <div class="map-notice" id="mapNotice" role="status">Pilih pesanan untuk melihat tujuan dan posisi kurir.</div>
         <div class="map-footer">
           <div class="map-stat"><div class="map-stat-lbl">Jarak Tersisa</div><div class="map-stat-val" id="mapDist">—</div></div>
           <div class="map-stat"><div class="map-stat-lbl">Estimasi Tiba</div><div class="map-stat-val" id="mapEta">—</div></div>
@@ -275,7 +288,15 @@
     </div>
     <div class="form-group"><label class="form-label">Nama Lengkap</label><input class="form-ctrl" id="bName" placeholder="Nama kamu"/></div>
     <div class="form-group"><label class="form-label">Nomor WhatsApp</label><input class="form-ctrl" id="bPhone" placeholder="08xxxxxxxxxx"/></div>
-    <div class="form-group"><label class="form-label">Alamat Lengkap</label><input class="form-ctrl" id="bAddr" placeholder="Jalan, nomor rumah, kelurahan, kecamatan..."/></div>
+    <div class="form-group"><label class="form-label" for="bAddr">Alamat Lengkap</label><input class="form-ctrl" id="bAddr" placeholder="Jalan, nomor rumah, kelurahan, kecamatan..."/></div>
+    <div class="booking-location">
+      <div class="booking-location-head"><div><h4>Titik pengantaran</h4><p>Tambahkan pin agar admin mudah menemukan alamatmu.</p></div></div>
+      <button class="btn-location" id="locateBookingBtn" type="button" onclick="locateMe('booking')">◎ Gunakan lokasi saya</button>
+      <p class="location-status" id="bookingLocationStatus" role="status" aria-live="polite">Opsional. Izinkan lokasi untuk mengambil titik GPS, atau pilih titik di peta.</p>
+      <div id="bookingMap" role="region" aria-label="Pilih titik pengantaran di peta"></div>
+      <div class="booking-pin-info"><span id="bookingLocationCoords">Belum ada titik dipilih</span><button class="location-text-btn" id="clearBookingLocationBtn" type="button" onclick="clearDeliveryLocation()" hidden>Hapus titik</button></div>
+      <p class="location-help">Ketuk peta atau geser pin untuk menyesuaikan tujuan. Titik dikirim ke admin saat booking dikonfirmasi.</p>
+    </div>
     <div class="form-group">
       <label class="form-label">Metode Pembayaran</label>
       <select class="form-ctrl" id="bPay">
@@ -439,6 +460,7 @@
 <script src="js/games.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/user.js"></script>
+<script src="js/maps.js"></script>
 <script src="js/admin.js"></script>
 </body>
 </html>

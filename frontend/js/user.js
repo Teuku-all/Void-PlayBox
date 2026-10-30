@@ -1,6 +1,6 @@
 /* user.js — halaman pelanggan: paket, booking, pelacakan (Leaflet), chat */
 let PACKAGES = [], selectedPkg = null, myOrders = [], trackedOrderId = null;
-let map = null, mapLayers = {}, trackTimer = null, chatTimer = null, chatCount = -1;
+let trackTimer = null, chatTimer = null, chatCount = -1;
 const STORE_POS = [5.5483, 95.3238]; // Void Play Box Store, Banda Aceh
 
 async function enterUser(user) {
@@ -17,6 +17,7 @@ async function enterUser(user) {
 function stopUserPolling() {
   clearInterval(trackTimer); clearInterval(chatTimer);
   trackedOrderId = null; chatCount = -1; selectedPkg = null;
+  resetLocationSession();
 }
 
 /* ══════ PAKET ══════ */
@@ -101,10 +102,11 @@ function bookPkg(id) {
   if (!$('bPhone').value) $('bPhone').value = u.phone || '';
   if (!$('bAddr').value) $('bAddr').value = u.address || '';
   $('bookingPanel').classList.add('open');
+  initBookingMap();
 }
 
 function openBooking() {
-  if (selectedPkg) $('bookingPanel').classList.add('open');
+  if (selectedPkg) { $('bookingPanel').classList.add('open'); initBookingMap(); }
   else toast('Pilih paket terlebih dahulu ya!');
 }
 function closeBooking() { $('bookingPanel').classList.remove('open'); }
@@ -127,12 +129,15 @@ async function geocodeAddress(addr) {
 async function submitBooking() {
   const name = $('bName').value.trim(), phone = $('bPhone').value.trim(), addr = $('bAddr').value.trim();
   if (!selectedPkg) return toast('Pilih paket terlebih dahulu ya!');
+  if (locationBusy) return toast('Tunggu pencarian lokasi selesai, atau hapus titik untuk melanjutkan dengan alamat manual.');
   if (!name || !phone || !addr) return toast('⚠️ Lengkapi semua data dulu ya!', 'error');
 
   const btn = $('bookBtn');
   btn.disabled = true; btn.textContent = 'Memproses…';
   try {
-    const pos = await geocodeAddress(addr);
+    const pos = deliveryLocation
+      ? { delivery_lat: deliveryLocation.lat, delivery_lng: deliveryLocation.lng }
+      : await geocodeAddress(addr);
     const { order } = await api.post('/orders', {
       package_id: selectedPkg.id,
       payment_method: $('bPay').value,
@@ -144,6 +149,7 @@ async function submitBooking() {
     $('modalOrderId').textContent = '#' + order.order_code;
     $('modalOv').classList.add('open');
     selectedPkg = null;
+    clearDeliveryLocation();
     await loadMyOrders();
   } catch (e) {
     toast(e.message, 'error');
@@ -161,20 +167,25 @@ async function loadMyOrders() {
   const sel = $('trackSelect');
   sel.innerHTML = myOrders.length
     ? myOrders.map(o => `<option value="${o.id}">${esc(o.order_code)} — ${esc(o.package_name)}</option>`).join('')
-    : '<option>Belum ada pesanan</option>';
+    : '<option value="">Belum ada pesanan</option>';
+  sel.disabled = !myOrders.length;
+  $('refreshMapBtn').disabled = !myOrders.length;
+  $('copyTrackBtn').disabled = !myOrders.length;
   const pick = myOrders.find(o => o.id === trackedOrderId)
     || myOrders.find(o => !['completed', 'cancelled'].includes(o.status))
     || myOrders[0];
   if (pick) { sel.value = pick.id; trackOrder(pick.id); }
+  else resetTrackingMap();
+  updateLocationUI();
 }
 
 function renderTrackList() {
   const steps = ['Dikonfirmasi', 'Disiapkan', 'Di Jalan', 'Tiba'];
   if (!myOrders.length) {
-    $('trackList').innerHTML = '<p style="color:var(--muted);margin-bottom:28px">Belum ada pesanan. Pilih paket untuk mulai menyewa 🎮</p>';
+    $('trackList').innerHTML = '<div class="tracking-empty"><span aria-hidden="true">↗</span><div><strong>Belum ada perjalanan</strong><p>Pilih paket main pertamamu. Kamu tetap bisa menandai lokasi di peta.</p></div><button class="btn-sm" onclick="userScroll(\'packages\')">Pilih paket</button></div>';
     return;
   }
-  $('trackList').innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px;margin-bottom:28px">
+  $('trackList').innerHTML = `<div class="tracking-cards">
     ${myOrders.slice(0, 4).map(o => `
       <div class="track-card">
         <div class="track-head"><div class="track-id">#${esc(o.order_code)}</div>${statusPill(o.status)}</div>
@@ -213,65 +224,7 @@ function copyTrackCode() {
   toast('🔗 Kode pesanan disalin!', 'success');
 }
 
-/* ── Peta (Leaflet + OpenStreetMap) ── */
-function initMap() {
-  if (map) return map.invalidateSize();
-  map = L.map('map').setView(STORE_POS, 13);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
-  setMarker('store', STORE_POS, '🏪', 'Void Play Box Store');
-}
-
-function setMarker(key, pos, emoji, label) {
-  if (mapLayers[key]) return mapLayers[key].setLatLng(pos);
-  mapLayers[key] = L.marker(pos, { icon: L.divIcon({ html: emoji, className: 'emoji-pin', iconSize: [32, 32] }) })
-    .addTo(map).bindTooltip(label);
-}
-
-function removeLayer(key) {
-  if (mapLayers[key]) { map.removeLayer(mapLayers[key]); delete mapLayers[key]; }
-}
-
-async function trackOrder(id) {
-  trackedOrderId = id;
-  clearInterval(trackTimer);
-  await refreshTracking(true);
-  trackTimer = setInterval(() => refreshTracking(false), 10000);
-}
-
-async function refreshTracking(fit) {
-  if (!trackedOrderId || !map) return;
-  try {
-    const d = await api.get('/maps/courier/' + trackedOrderId);
-    const dest = d.destination, cp = d.courier_pos;
-    const live = ['on_delivery', 'returning'].includes(d.order_status);
-    const pts = [STORE_POS];
-
-    if (dest.lat != null) { setMarker('home', [dest.lat, dest.lng], '📍', 'Alamat pengantaran'); pts.push([dest.lat, dest.lng]); }
-    else removeLayer('home');
-
-    if (live && cp.lat != null) { setMarker('courier', [cp.lat, cp.lng], '🛵', 'Kurir ' + d.courier_name); pts.push([cp.lat, cp.lng]); }
-    else removeLayer('courier');
-
-    let dist = '—', eta = '—';
-    removeLayer('route');
-    if (live && cp.lat != null && dest.lat != null) {
-      try {
-        const r = await api.get(`/maps/route?from_lat=${cp.lat}&from_lng=${cp.lng}&to_lat=${dest.lat}&to_lng=${dest.lng}`);
-        dist = r.distance_km + ' km'; eta = '~' + r.duration_min + ' menit';
-        mapLayers.route = L.geoJSON(r.geometry, { style: { color: '#7C3AED', weight: 5, opacity: 0.8 } }).addTo(map);
-      } catch { /* rute opsional */ }
-    }
-    $('mapDist').textContent = dist;
-    $('mapEta').textContent = eta;
-    $('mapStatus').textContent = (ORDER_STATUS[d.order_status] || {}).label || d.order_status;
-    $('mapCourier').textContent = d.courier_name || '—';
-    if (fit && pts.length > 1) map.fitBounds(pts, { padding: [40, 40] });
-  } catch (e) {
-    if (fit) toast(e.message, 'error');
-  }
-}
-
-/* ══════ LIVE CHAT ══════ */
+/* LIVE CHAT */
 const myRoom = () => `user_${Session.user.id}`;
 
 function startChat() {

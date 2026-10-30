@@ -93,12 +93,12 @@ function renderOrders() {
   $('ordersBody').innerHTML = rows.map(o => `
     <tr>
       <td><span class="td-id">#${esc(o.order_code)}</span></td>
-      <td>${esc(o.user_name)}</td><td>${esc(o.package_name)}</td>
+      <td>${esc(o.user_name)}<div class="order-location-badge">${validMapPoint(o.delivery_lat, o.delivery_lng) ? '● Titik tujuan tersedia' : '○ Belum ada titik tujuan'}</div></td><td>${esc(o.package_name)}</td>
       <td style="font-weight:600">${rupiah(o.total)}</td>
       <td>${statusPill(o.status)}</td><td>${esc(o.courier_name || '—')}</td>
       <td>
         <select class="form-ctrl" style="width:auto;padding:6px 10px;font-size:12px" onchange="changeStatus(${o.id},this.value)">${opts(o.status)}</select>
-        <button class="action-btn action-view" onclick="viewOrder(${o.id})">Detail</button>
+        <button class="action-btn action-view" onclick="viewOrder(${o.id})">Detail & lokasi</button>
       </td>
     </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--muted)">Belum ada pesanan</td></tr>';
 }
@@ -143,15 +143,21 @@ async function changeStatus(id, status) {
 async function viewOrder(id) {
   try {
     const { order: o, tracking } = await api.get('/orders/' + id);
+    const hasLocation = validMapPoint(o.delivery_lat, o.delivery_lng);
+    const coords = hasLocation ? `${Number(o.delivery_lat).toFixed(6)}, ${Number(o.delivery_lng).toFixed(6)}` : '';
     openForm({
       title: '#' + o.order_code,
       html: `<div style="font-size:14px;line-height:1.8">
         👤 ${esc(o.user_name)} · ${esc(o.user_phone || '—')}<br>
         📦 ${esc(o.package_name)} · ${rupiah(o.total)} (${esc(o.payment_method.toUpperCase())}, ${esc(o.payment_status)})<br>
         📍 ${esc(o.delivery_address)}<br>📝 ${esc(o.notes || '—')}</div>
+        <div class="admin-location-card"><h4>Tujuan pengantaran</h4>
+        ${hasLocation ? `<p>Pin yang tersimpan pada pesanan · ${coords}</p><div id="adminOrderMap" role="region" aria-label="Peta tujuan pengantaran pelanggan"></div><div class="admin-location-actions"><a class="btn-sm" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(coords)}" target="_blank" rel="noopener noreferrer">↗ Buka rute di Google Maps</a><button type="button" class="btn-sm" onclick="copyCoordinates(${Number(o.delivery_lat)},${Number(o.delivery_lng)})">Salin koordinat</button></div>` : '<p>Pelanggan belum menambahkan titik tujuan. Gunakan alamat tertulis atau minta pelanggan menyimpan titik melalui menu Pengiriman.</p>'}
+        </div>
         <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--pu5);font-size:13px">
         ${tracking.map(t => `<div style="padding:5px 0">🕒 ${fmtTime(t.created_at)} · ${esc(t.message)}</div>`).join('')}</div>`,
     });
+    if (hasLocation) showAdminOrderMap(o);
   } catch (e) { toast(e.message, 'error'); }
 }
 

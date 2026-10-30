@@ -1,5 +1,6 @@
 const { query } = require('../config/database');
 const { ok, fail } = require('../middleware/errorHandler');
+const { validCoordinates } = require('../utils/coordinates');
 const NOMINATIM_HEADERS = { 'User-Agent': 'PlayBox-Rental/1.0 (playbox@mail.id)', 'Accept-Language': 'id,en' };
 
 async function geocode(req, res, next) {
@@ -17,10 +18,11 @@ async function geocode(req, res, next) {
 async function reverseGeocode(req, res, next) {
   try {
     const { lat, lng } = req.query;
-    if (!lat || !lng) return fail(res, 'lat dan lng wajib diisi.');
+    if (!validCoordinates(lat, lng)) return fail(res, 'lat dan lng harus berupa koordinat yang valid.');
     const resp = await fetchWithTimeout(`https://nominatim.openstreetmap.org/reverse?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}&format=json`, NOMINATIM_HEADERS);
     if (!resp.ok) return fail(res, 'Layanan pencarian alamat sedang bermasalah.', 502);
     const data = await resp.json();
+    if (!data.display_name || !validCoordinates(data.lat, data.lon)) return fail(res, 'Alamat untuk titik ini belum ditemukan.', 404);
     return ok(res, { display_name: data.display_name, address: data.address, lat: parseFloat(data.lat), lng: parseFloat(data.lon) });
   } catch (err) { return next(err); }
 }

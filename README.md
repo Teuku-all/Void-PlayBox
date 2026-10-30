@@ -44,6 +44,11 @@ Database SQLite dibuat otomatis di `backend/database/playbox.db` beserta tabel d
 
 ## Catatan
 
+- Menu Pengiriman dan formulir booking memiliki tombol **Gunakan lokasi saya**. Browser mengambil satu titik GPS setelah pengguna memberi izin (memerlukan HTTPS atau localhost). Titik dapat disesuaikan dengan mengetuk peta atau menggeser pin pada formulir booking.
+- Titik pilihan dikirim saat booking dikonfirmasi, atau melalui **Simpan titik ke pesanan** untuk pesanan milik pengguna yang masih `pending`, `confirmed`, atau `preparing`. Lokasi tidak dipantau terus-menerus. Detail admin menampilkan pin tujuan, koordinat, dan tautan rute Google Maps.
+- Perubahan titik pesanan menggunakan endpoint terautentikasi `PUT /api/orders/:id/location` dan dicatat pada riwayat pesanan. Deploy frontend dan backend bersama agar endpoint tersedia; tidak perlu migrasi database karena kolom koordinat sudah ada.
+- Pemeriksaan fitur lokasi: jalankan `node --test tests/location.test.js` dari direktori `backend`.
+
 - Pembayaran belum terhubung dengan payment gateway; status pembayarannya dikelola admin.
 - Lokasi kurir di endpoint peta masih berupa simulasi. Aplikasi kurir dapat memperbarui lokasi melalui `PUT /api/maps/courier/:courierId/location`.
 - `npm run db:init` menjalankan inisialisasi database secara langsung.

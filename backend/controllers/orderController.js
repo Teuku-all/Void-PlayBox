@@ -1,5 +1,6 @@
 const { query, withTransaction } = require('../config/database');
 const { ok, fail } = require('../middleware/errorHandler');
+const { validCoordinates } = require('../utils/coordinates');
 
 function genCode() {
   const d = new Date();
@@ -16,6 +17,7 @@ async function create(req, res, next) {
   try {
     const { package_id, payment_method, delivery_address, delivery_lat, delivery_lng, notes } = req.body;
     if (!package_id || !payment_method || !delivery_address) return fail(res, 'Paket, metode bayar, dan alamat wajib diisi.');
+    if ((delivery_lat != null || delivery_lng != null) && !validCoordinates(delivery_lat, delivery_lng)) return fail(res, 'Titik pengantaran harus berisi latitude dan longitude yang valid.');
     const packageResult = await query('SELECT * FROM packages WHERE id = $1 AND is_active = 1', [package_id]);
     const pkg = packageResult.rows[0];
     if (!pkg) return fail(res, 'Paket tidak ditemukan.', 404);
@@ -31,7 +33,7 @@ async function create(req, res, next) {
           subtotal, delivery_fee, total, delivery_address, delivery_lat, delivery_lng, notes)
          VALUES ($1,$2,$3,'pending',$4,'unpaid',$5,$6,$7,$8,$9,$10,$11) RETURNING *`,
         [orderCode, req.user.id, package_id, payment_method, subtotal, deliveryFee, subtotal + deliveryFee,
-          delivery_address, delivery_lat ?? null, delivery_lng ?? null, notes || null]
+          delivery_address, delivery_lat == null ? null : Number(delivery_lat), delivery_lng == null ? null : Number(delivery_lng), notes || null]
       );
       const newOrder = inserted.rows[0];
       await client.query(
@@ -45,6 +47,31 @@ async function create(req, res, next) {
       return joined.rows[0];
     });
     return ok(res, { order }, 'Pesanan berhasil dibuat!', 201);
+  } catch (err) { return next(err); }
+}
+
+async function updateLocation(req, res, next) {
+  try {
+    const { delivery_lat: lat, delivery_lng: lng } = req.body;
+    if (!validCoordinates(lat, lng)) return fail(res, 'Latitude dan longitude tujuan wajib berupa koordinat yang valid.');
+    const result = await withTransaction(async client => {
+      const { rows } = await client.query('SELECT id, user_id, status FROM orders WHERE id = $1 FOR UPDATE', [req.params.id]);
+      const order = rows[0];
+      if (!order) return { error: 'Pesanan tidak ditemukan.', status: 404 };
+      if (Number(order.user_id) !== Number(req.user.id)) return { error: 'Akses ditolak.', status: 403 };
+      if (!['pending', 'confirmed', 'preparing'].includes(order.status)) return { error: 'Tujuan sudah dikunci karena pesanan telah diproses untuk pengiriman. Hubungi admin untuk perubahan.', status: 409 };
+      const updated = await client.query(
+        'UPDATE orders SET delivery_lat = $1, delivery_lng = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3 RETURNING *',
+        [Number(lat), Number(lng), order.id]
+      );
+      await client.query(
+        'INSERT INTO order_tracking (order_id, status, message, lat, lng) VALUES ($1,$2,$3,$4,$5)',
+        [order.id, order.status, 'Pelanggan memperbarui titik pengantaran.', Number(lat), Number(lng)]
+      );
+      return { order: updated.rows[0] };
+    });
+    if (result.error) return fail(res, result.error, result.status);
+    return ok(res, result, 'Titik pengantaran berhasil disimpan.');
   } catch (err) { return next(err); }
 }
 
@@ -193,4 +220,4 @@ const statusMessages = {
   completed: 'Pesanan selesai. Terima kasih telah menggunakan Void Play Box!',
   cancelled: 'Pesanan dibatalkan.'
 };
-module.exports = { create, getMyOrders, getOne, getAll, updateStatus, cancelOrder, getStats };
+module.exports = { create, getMyOrders, getOne, getAll, updateStatus, updateLocation, cancelOrder, getStats };

@@ -35,6 +35,7 @@ router.get('/orders', auth.authenticate, auth.requireAdmin, orderCtrl.getAll);
 router.get('/orders/stats', auth.authenticate, auth.requireAdmin, orderCtrl.getStats);
 router.get('/orders/:id', auth.authenticate, orderCtrl.getOne);
 router.put('/orders/:id/status', auth.authenticate, auth.requireAdmin, orderCtrl.updateStatus);
+router.put('/orders/:id/location', auth.authenticate, orderCtrl.updateLocation);
 router.put('/orders/:id/cancel', auth.authenticate, orderCtrl.cancelOrder);
 
 // Maps

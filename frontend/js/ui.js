@@ -50,6 +50,7 @@ function toast(msg, type = '') {
 
 /* ── Modal form generik (tambah/edit data admin, detail pesanan) ── */
 function openForm({ title, fields = [], html = '', submitText = 'Simpan', onSubmit }) {
+  clearAdminOrderMap();
   $('formTitle').textContent = title;
   $('formBody').innerHTML = fields.map(f => `
     <div class="form-group"><label class="form-label">${esc(f.label)}</label>
@@ -68,4 +69,4 @@ function openForm({ title, fields = [], html = '', submitText = 'Simpan', onSubm
   };
   $('formOv').classList.add('open');
 }
-function closeForm() { $('formOv').classList.remove('open'); }
+function closeForm() { clearAdminOrderMap(); $('formOv').classList.remove('open'); }

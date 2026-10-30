@@ -1,0 +1,78 @@
+/* Maps share the storefront's purple palette while keeping map details readable. */
+.map-wrap{border:1px solid #e4ddeb;border-radius:22px;box-shadow:0 8px 32px #2b133907}
+.map-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px 26px 20px}
+.map-heading .section-kicker{font-size:9px;margin-bottom:7px}
+.map-heading h3{font-size:18px;letter-spacing:-.4px}
+.map-update{font-size:10px;color:#796a87;background:#f6f2fa;border:1px solid #ebe2f2;border-radius:99px;padding:7px 12px}
+.map-controls{padding:0 26px 20px;gap:10px;align-items:flex-end;border-color:#eee8f4}
+.map-order-select{font-size:10px;font-weight:700;color:#80718e;flex:1;max-width:440px}
+.map-order-select .form-ctrl{margin-top:7px;border-radius:10px;background:#f8f5fc;padding:11px 14px;font-size:12px;font-weight:500}
+.map-controls .btn-sm{min-height:42px;border-radius:10px;font-size:11px}
+.map-controls button:disabled,.btn-location:disabled{opacity:.55;cursor:default}
+.delivery-map-layout{display:grid;grid-template-columns:minmax(0,1fr) 280px}
+.map-viewport{position:relative;min-width:0;min-height:440px;background:#f1eef6}
+.map-viewport #map{position:absolute;inset:0;height:100%}
+#map{height:440px;z-index:0;width:100%;font-family:'Manrope',sans-serif}
+.map-fit-btn{position:absolute;top:14px;left:14px;z-index:10;background:#fff;border:1px solid #e5dfee;box-shadow:0 2px 8px #26133714;border-radius:9px;padding:10px 13px;min-height:40px;font:600 11px 'Manrope',sans-serif;color:#6e419b;cursor:pointer}
+.map-legend{position:absolute;bottom:26px;left:14px;background:#fffffff2;padding:9px 12px;border:1px solid #e8e0ef;border-radius:9px;display:flex;flex-wrap:wrap;gap:10px;z-index:10;box-shadow:0 2px 10px #26133712}
+.map-legend span{display:flex;align-items:center;gap:5px;font-size:9px;color:#64536f}
+.map-legend i{width:7px;height:7px;border-radius:50%;display:inline-block}
+.legend-store{background:#7442ac}.legend-home{background:#22896a}.legend-self{background:#3178d4}.legend-courier{background:#c57c22}
+.delivery-pin-icon{background:none;border:0}
+.delivery-pin{width:36px;height:36px;display:grid;place-items:center;border:3px solid white;border-radius:50% 50% 50% 5px;transform:rotate(-45deg);box-shadow:0 3px 12px #29143d40;color:white;font:bold 19px/1 'Manrope',sans-serif}
+.delivery-pin>span{transform:rotate(45deg)}
+.delivery-pin-store{background:#7442ac}.delivery-pin-home{background:#22896a}.delivery-pin-self{background:#3178d4}.delivery-pin-courier{background:#c57c22}
+.leaflet-control-zoom a{color:#694181!important}.leaflet-bar{border-color:#dfd6e9!important;border-radius:9px!important;overflow:hidden}
+.leaflet-tooltip{font:600 10px 'Manrope',sans-serif;border-radius:7px;padding:7px 10px;color:#624879}
+.leaflet-container{background:#f1eef6}
+.leaflet-control-attribution{font-size:9px!important}
+.location-card{padding:24px 22px;background:linear-gradient(145deg,#fcfaff,#f4effa);border-left:1px solid #e9e1f0}
+.location-card-icon{width:42px;height:42px;border-radius:12px;background:#eae0f6;color:#7441ae;display:grid;place-items:center;font-size:26px;margin-bottom:15px}
+.location-card h4{font-size:16px;margin-bottom:8px}
+.location-card>p{font-size:11px;color:#80708f;line-height:1.7;margin-bottom:16px}
+.btn-location{display:block;width:100%;border:0;border-radius:10px;background:#7741b3;color:#fff;min-height:44px;padding:12px 14px;font:700 11px 'Manrope',sans-serif;cursor:pointer;transition:background .2s}
+.btn-location:hover{background:#60318f}
+.btn-location-save{margin-top:14px;background:#e7daf5;color:#68418e;border:1px solid #d5c1e9}
+.btn-location-save:hover{background:#ddc8ef}
+.location-status,.location-card>.location-status{font-size:10px;line-height:1.8;color:#7c6a8d;margin:12px 0}
+.location-details{border-top:1px solid #e7ddf0;margin-top:16px;padding-top:14px}
+.location-caption{font-size:8px;letter-spacing:1.2px;color:#947aa9}
+.location-details strong{display:block;font-size:11px;color:#644b7b;margin:7px 0;overflow-wrap:anywhere}
+.location-details p{font-size:10px;color:#857293;line-height:1.7;overflow-wrap:anywhere}
+.location-text-btn{border:0;background:transparent;padding:8px 0;min-height:36px;cursor:pointer;color:#8255a9;font:600 10px 'Manrope',sans-serif;text-decoration:underline;text-underline-offset:3px}
+.location-help,.location-card>.location-help{font-size:9px;line-height:1.8;color:#917e9e;margin:12px 0 0}
+.map-notice{background:#faf8fc;border-top:1px solid #eae3f0;padding:13px 24px;font-size:10px;color:#84708f;line-height:1.8}
+.map-footer{background:white;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-color:#eee7f3}
+.map-stat{padding:20px 24px;border-color:#eee7f3;min-width:0}
+.map-stat-lbl{font-size:9px;letter-spacing:.8px;color:#9b8aa9;margin-bottom:7px}
+.map-stat-val{font-size:13px;overflow-wrap:anywhere}
+.tracking-empty{display:flex;align-items:center;gap:16px;margin-bottom:22px;border:1px dashed #dcccE8;background:#f4effa;border-radius:16px;padding:18px 22px}
+.tracking-empty>span{font-size:24px;color:#9e7abb}.tracking-empty strong{font-size:12px;color:#634b78}.tracking-empty p{font-size:11px;color:#8a7799;line-height:1.6;margin-top:4px}.tracking-empty .btn-sm{margin-left:auto;white-space:nowrap;min-height:40px}
+.tracking-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:20px;margin-bottom:24px}.tracking-cards .track-card{margin:0}
+.booking-location{border:1px solid #e9dff2;border-radius:14px;padding:16px;margin:20px 0;background:#fdfbff}
+.booking-location h4{font-size:13px;color:#543469;margin-bottom:4px}
+.booking-location-head p{font-size:10px;line-height:1.7;color:#907b9c;margin-bottom:12px}
+.booking-location .btn-location{background:#efe5fa;border:1px solid #dfccef;color:#74449d}
+#bookingMap{height:220px;width:100%;border:1px solid #e6dcec;border-radius:10px;overflow:hidden;font-family:'Manrope',sans-serif;z-index:0}
+.booking-pin-info{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;min-height:30px}
+.booking-pin-info>span{font-size:10px;color:#806691;overflow-wrap:anywhere}
+#adminOrderMap{height:240px;border-radius:12px;border:1px solid #e7dcee;margin-top:12px;z-index:0}
+.admin-location-card{margin-top:16px;border:1px solid #e5d9ef;border-radius:14px;padding:16px;background:#faf7fd}
+.admin-location-card h4{font-size:13px;color:#66447f;margin-bottom:6px}.admin-location-card p{font-size:11px;color:#8f789e;line-height:1.8}
+.admin-location-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px}.admin-location-actions a{font-size:11px;text-decoration:none;min-height:40px;display:inline-flex;align-items:center}
+.order-location-badge{font-size:9px;color:#8c739e;margin-top:4px}
+#formOv .modal-box{max-height:92svh;overflow-y:auto}
+#formOv .modal-title{font-family:'Manrope',sans-serif;font-size:18px;line-height:1.5;text-align:left;padding-right:26px;overflow-wrap:anywhere}
+[hidden]{display:none!important}
+@media(prefers-reduced-motion:reduce){.modal-ov,.modal-box{animation:none!important;transition:none!important}}
+@media(max-width:900px){.delivery-map-layout{grid-template-columns:minmax(0,1fr) 240px}.location-card{padding:22px 18px}.map-stat{padding:18px 14px}}
+@media(max-width:600px){
+ .map-wrap{border-radius:18px}.map-heading{padding:20px 18px 16px;align-items:flex-start;flex-direction:column;gap:10px}.map-heading h3{font-size:16px}.map-update{font-size:9px}
+ .map-controls{padding:0 18px 18px;gap:8px}.map-order-select{flex-basis:100%;max-width:100%}.map-controls .btn-sm{flex:1;min-height:42px}
+ .delivery-map-layout{grid-template-columns:1fr}.map-viewport{min-height:340px}#map{height:340px}.map-fit-btn{top:12px;left:12px}.map-legend{left:12px;bottom:28px;max-width:calc(100% - 64px);gap:8px;padding:9px 10px}
+ .location-card{padding:20px;border-left:0;border-top:1px solid #e9e1f0}.location-card-icon{display:none}.location-card h4{font-size:14px}.location-card>p{margin-bottom:12px}.location-card .location-status{font-size:11px}
+ .btn-location{font-size:12px;min-height:46px}.map-notice{padding:14px 18px;font-size:10px}.map-footer{grid-template-columns:1fr 1fr}.map-stat{padding:16px 18px}.map-stat:nth-child(2){border-right:0}
+ .tracking-empty{gap:10px;padding:16px;flex-wrap:wrap}.tracking-empty p{font-size:10px}.tracking-empty .btn-sm{margin-left:0}.tracking-empty>span{display:none}
+ .booking-location{padding:14px}#bookingMap{height:210px}.location-status{font-size:11px}.location-help{font-size:10px}.booking-pin-info>span{font-size:10px}.booking-location-head p{font-size:11px}
+ #adminOrderMap{height:220px}#formOv .modal-box{padding:28px 20px}.admin-location-actions{align-items:stretch;flex-direction:column}
+}
