@@ -3,7 +3,8 @@ let adminOrders = [], adminInv = [], adminCouriers = [], orderFilter = '';
 let admRoom = null, adminTimer = null, adminChatTimer = null, adminChatRequest = 0;
 
 const COUR_BG = [
-  '#e8eefb', '#e7f2ed', '#eef0f5', '#f4eee6',
+  'linear-gradient(135deg,#F59E0B,#FBBF24)', 'linear-gradient(135deg,#10B981,#34D399)',
+  'linear-gradient(135deg,#3B82F6,#60A5FA)', 'linear-gradient(135deg,#EC4899,#F472B6)',
 ];
 const INV_STATUS = {
   rented: { cls: 'avail-few', txt: 'Sedang Disewa' },
