@@ -47,6 +47,8 @@ router.put('/maps/courier/:courierId/location', auth.authenticate, auth.requireA
 
 // Chat
 router.get('/chat/rooms', auth.authenticate, chatCtrl.getRooms);
+router.get('/chat/notifications', auth.authenticate, chatCtrl.getNotifications);
+router.put('/chat/:room_id/read', auth.authenticate, chatCtrl.markRead);
 router.get('/chat/:room_id/messages', auth.authenticate, chatCtrl.getMessages);
 router.post('/chat/:room_id/messages', auth.authenticate, chatCtrl.sendMessage);
 

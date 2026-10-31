@@ -15,8 +15,6 @@ async function getMessages(req, res, next) {
     params.push(limit);
     sql += ` ORDER BY cm.id DESC LIMIT $${params.length}`;
     const messages = (await query(sql, params)).rows.reverse();
-    const otherRole = req.user.role === 'admin' ? 'user' : 'admin';
-    await query('UPDATE chat_messages SET is_read = 1 WHERE room_id = $1 AND sender_role = $2', [roomId, otherRole]);
     return ok(res, { messages });
   } catch (err) { return next(err); }
 }
@@ -60,4 +58,30 @@ async function getRooms(req, res, next) {
     return ok(res, { rooms });
   } catch (err) { return next(err); }
 }
-module.exports = { getMessages, sendMessage, getRooms };
+// Fetching messages is read-only. The client acknowledges only a visible conversation.
+async function markRead(req, res, next) {
+  try {
+    const roomId = req.params.room_id;
+    if (!canAccess(req, roomId)) return fail(res, 'Akses ditolak.', 403);
+    const throughId = req.body.through_id;
+    if (!Number.isSafeInteger(throughId) || throughId <= 0) return fail(res, 'ID pesan terakhir tidak valid.');
+    const role = req.user.role === 'admin' ? 'user' : 'admin';
+    await query('UPDATE chat_messages SET is_read = 1 WHERE room_id = $1 AND sender_role = $2 AND id <= $3 AND is_read = 0', [roomId, role, throughId]);
+    return ok(res, {}, 'Pesan ditandai sudah dibaca.');
+  } catch (err) { return next(err); }
+}
+
+async function getNotifications(req, res, next) {
+  try {
+    const admin = req.user.role === 'admin';
+    const params = admin ? ['user'] : ['admin', `user_${req.user.id}`];
+    const scope = "cm.is_read = 0 AND cm.sender_role = $1" + (admin ? '' : ' AND cm.room_id = $2');
+    const [count, messages] = await Promise.all([
+      query(`SELECT COUNT(*)::int AS total FROM chat_messages cm WHERE ${scope}`, params),
+      query(`SELECT cm.id, cm.room_id, cm.message, cm.created_at, u.name AS sender_name
+        FROM chat_messages cm JOIN users u ON cm.sender_id = u.id WHERE ${scope} ORDER BY cm.id DESC LIMIT 30`, params),
+    ]);
+    return ok(res, { total: Number(count.rows[0].total), messages: messages.rows });
+  } catch (err) { return next(err); }
+}
+module.exports = { getMessages, sendMessage, getRooms, markRead, getNotifications };

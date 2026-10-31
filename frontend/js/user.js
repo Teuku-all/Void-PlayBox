@@ -1,6 +1,6 @@
 /* user.js — halaman pelanggan: paket, booking, pelacakan (Leaflet), chat */
 let PACKAGES = [], selectedPkg = null, myOrders = [], trackedOrderId = null;
-let trackTimer = null, chatTimer = null, chatCount = -1;
+let trackTimer = null, chatTimer = null, chatCount = -1, userChatLoading = false;
 const STORE_POS = [5.5483, 95.3238]; // Void Play Box Store, Banda Aceh
 
 async function enterUser(user) {
@@ -98,6 +98,7 @@ function bookPkg(id) {
   $('bsName').textContent = selectedPkg.name;
   $('bsDetail').textContent = `${PS_ICON[selectedPkg.ps_type]} · ${selectedPkg.duration_label || `${selectedPkg.duration} Hari`} · 2 Controller`;
   $('bsPrice').textContent = rupiah(selectedPkg.price);
+  $('bsTotal').textContent = rupiah(Number(selectedPkg.price) + 15000);
   if (!$('bName').value) $('bName').value = u.name || '';
   if (!$('bPhone').value) $('bPhone').value = u.phone || '';
   if (!$('bAddr').value) $('bAddr').value = u.address || '';
@@ -180,7 +181,7 @@ async function loadMyOrders() {
 }
 
 function renderTrackList() {
-  const steps = ['Dikonfirmasi', 'Disiapkan', 'Di Jalan', 'Tiba'];
+  const steps = ['Konfirmasi', 'Disiapkan', 'Diantar', 'Tiba'];
   if (!myOrders.length) {
     $('trackList').innerHTML = '<div class="tracking-empty"><span aria-hidden="true">↗</span><div><strong>Belum ada perjalanan</strong><p>Pilih paket main pertamamu. Kamu tetap bisa menandai lokasi di peta.</p></div><button class="btn-sm" onclick="userScroll(\'packages\')">Pilih paket</button></div>';
     return;
@@ -189,15 +190,15 @@ function renderTrackList() {
     ${myOrders.slice(0, 4).map(o => `
       <div class="track-card">
         <div class="track-head"><div class="track-id">#${esc(o.order_code)}</div>${statusPill(o.status)}</div>
+        <div class="track-package"><strong>${esc(o.package_name)}</strong><span>${rupiah(o.total)}</span></div>
         <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${(ORDER_STATUS[o.status] || {}).step || 0}%"></div></div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:16px">${steps.map(s => `<span>${s}</span>`).join('')}</div>
+        <div class="track-steps">${steps.map(s => `<span>${s}</span>`).join('')}</div>
         <div class="courier-row">
           <div class="courier-av" style="background:#FEF3C7">${o.courier_name ? '🛵' : '⏳'}</div>
-          <div><div class="courier-name">${esc(o.courier_name || 'Menunggu kurir')}</div>
-          <div class="courier-sub">${esc(o.package_name)} · ${rupiah(o.total)}</div></div>
-          <button class="btn-sm" onclick="focusOrder(${o.id})">Lacak</button>
-          ${['pending', 'confirmed'].includes(o.status) ? `<button class="btn-sm" onclick="cancelOrder(${o.id})">Batal</button>` : ''}
+          <div class="courier-info"><div class="courier-name">${esc(o.courier_name || 'Menunggu penugasan kurir')}</div>
+          <div class="courier-sub">${o.courier_name ? 'Kurir untuk pesananmu' : 'Admin sedang mengatur pengantaran'}</div></div>
         </div>
+        <div class="track-actions"><button class="btn-sm" onclick="focusOrder(${o.id})">Lihat di peta ↗</button>${['pending', 'confirmed'].includes(o.status) ? `<button class="btn-sm" onclick="cancelOrder(${o.id})">Batalkan pesanan</button>` : ''}</div>
       </div>`).join('')}
   </div>`;
 }
@@ -228,29 +229,43 @@ function copyTrackCode() {
 const myRoom = () => `user_${Session.user.id}`;
 
 function startChat() {
+  ChatNotifications.start();
   loadChat();
-  chatTimer = setInterval(loadChat, 5000);
+  clearInterval(chatTimer);
+  chatTimer = setInterval(() => { if (ChatNotifications.active(myRoom())) loadChat(); }, 5000);
 }
 
 async function loadChat() {
+  if (userChatLoading || Session.user?.role !== 'user') return;
+  userChatLoading = true;
+  const token = Session.token, room = myRoom();
   try {
-    const { messages } = await api.get(`/chat/${myRoom()}/messages`);
-    if (messages.length === chatCount) return;
-    chatCount = messages.length;
+    const { messages } = await api.get(`/chat/${room}/messages`);
+    if (token !== Session.token) return;
     const box = $('chatMsgs');
-    box.innerHTML = bubble('Halo kak! 👋 Selamat datang di Void Play Box. Ada yang bisa kami bantu hari ini?', 'theirs', '')
+    const signature = messages.map(m => m.id).join(',');
+    const nearBottom = ChatNotifications.atBottom(box);
+    if (signature !== box.dataset.messageIds || chatCount === -1) {
+      box.innerHTML = bubble('Halo! Selamat datang di Void Play Box. Tanyakan paket PS4, pilihan game, atau bantuan pemasangan di sini.', 'theirs', '')
       + messages.map(m => bubble(m.message, m.sender_role === 'admin' ? 'theirs' : 'mine', fmtTime(m.created_at))).join('');
-    box.scrollTop = box.scrollHeight;
+      if (nearBottom || chatCount === -1) box.scrollTop = box.scrollHeight;
+      box.dataset.messageIds = signature;
+    }
+    chatCount = messages.length;
+    await ChatNotifications.ack(room, messages, box);
   } catch { /* abaikan, coba lagi pada polling berikutnya */ }
+  finally { userChatLoading = false; }
 }
 
 async function sendChat() {
   const inp = $('chatIn'), txt = inp.value.trim();
-  if (!txt) return;
-  inp.value = '';
+  if (!txt || $('userSendBtn').disabled) return;
+  $('userSendBtn').disabled = true;
   try {
     await api.post(`/chat/${myRoom()}/messages`, { message: txt });
+    inp.value = '';
     loadChat();
   } catch (e) { toast(e.message, 'error'); }
+  finally { $('userSendBtn').disabled = false; }
 }
 function sendQuick(txt) { $('chatIn').value = txt; sendChat(); }

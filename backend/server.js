@@ -32,7 +32,7 @@ app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 200,
+  max: 1200, // Account for chat notifications, tracking and dashboard polling on shared connections.
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, message: 'Terlalu banyak request. Coba lagi sebentar.' }

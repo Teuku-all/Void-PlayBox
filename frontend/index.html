@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="css/style.css"/>
 <link rel="stylesheet" href="css/customer.css"/>
 <link rel="stylesheet" href="css/maps.css"/>
+<link rel="stylesheet" href="css/admin.css"/>
 </head>
 <body>
 
@@ -64,16 +65,20 @@
   <!-- NAV -->
   <div class="topnav" id="userNav">
     <header class="nav-topbar">
+      <button class="mobile-menu-btn" id="userMenuBtn" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="userSidebar" onclick="toggleSidebar('user')">&#9776;</button>
       <div class="nav-logo"><img class="brand-logo nav-logo-icon" src="assets/void-play-box.png" alt=""/>Void Play Box</div>
     </header>
-    <nav class="bottom-nav" aria-label="Navigasi utama">
+    <nav class="bottom-nav" id="userSidebar" aria-label="Navigasi utama">
+      <div class="mobile-sidebar-heading"><span>Menu utama</span><button type="button" aria-label="Tutup menu" onclick="closeSidebar()">&times;</button></div>
       <a class="nav-link active" href="#home" onclick="event.preventDefault();userScroll('home',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1z"/></svg>Beranda</a>
       <a class="nav-link" href="#packages" onclick="event.preventDefault();userScroll('packages',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 11h12v8H6zM8 11V8a4 4 0 0 1 8 0v3M4 14h2m12 0h2"/></svg>Paket</a>
       <a class="nav-link" href="#delivery" onclick="event.preventDefault();userScroll('delivery',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>Pengiriman</a>
-      <a class="nav-link" href="#chat-sec" onclick="event.preventDefault();userScroll('chat-sec',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.7 7.4L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5Z"/></svg>Chat</a>
+      <a class="nav-link" href="#chat-sec" onclick="event.preventDefault();userScroll('chat-sec',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.7 7.4L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5Z"/></svg>Chat<span class="user-chat-badge" hidden></span></a>
       <a class="nav-link" href="#tutorial" onclick="event.preventDefault();userScroll('tutorial',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>Tutorial</a>
+    <div class="mobile-sidebar-foot"><span>PS4 offline &middot; Banda Aceh</span><button type="button" onclick="logout()">Keluar dari akun &#8599;</button></div>
     </nav>
     <div class="nav-right">
+      <button class="notification-bell" type="button" aria-label="Notifikasi chat" aria-controls="notificationPanel" aria-expanded="false" onclick="ChatNotifications.togglePanel(this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span class="notification-count" hidden></span></button>
       <div class="nav-avatar" id="userAvatar">U</div>
       <button class="btn-logout" onclick="logout()">Keluar</button>
     </div>
@@ -127,7 +132,7 @@
 
   <!-- PACKAGES -->
   <section id="packages">
-    <div class="content" style="padding-top:0">
+    <div class="content">
       <div class="pricing-heading"><div class="sec-header"><span class="section-kicker">Pilih durasi yang pas</span><h2>Paket sewa PS4</h2><p>Semua paket untuk bermain offline, lengkap dengan 2 controller.</p></div><span class="pricing-count" id="pkgCount" role="status" aria-live="polite"></span></div>
       <div class="pricing-toolbar">
       <div class="pkg-tabs">
@@ -144,7 +149,7 @@
   </section>
 
   <!-- HOW IT WORKS -->
-  <div class="content">
+  <div class="content how-content">
     <div class="how-section">
       <div class="how-connector"></div>
       <div class="how-grid">
@@ -173,7 +178,7 @@
 
   <!-- DELIVERY -->
   <section id="delivery">
-    <div class="content" style="padding-top:0">
+    <div class="content">
       <div class="sec-header"><span class="section-kicker">Dari toko ke depan pintu</span><h2>Pengiriman, lebih jelas.</h2><p>Pantau pesanan dan tentukan titik pengantaran yang tepat.</p></div>
       <div id="trackList"></div>
       <!-- MAP -->
@@ -208,33 +213,34 @@
 
   <!-- CHAT -->
   <section id="chat-sec">
-    <div class="content" style="padding-top:0">
-      <div class="sec-header"><h2>Chat dengan admin</h2><p>Tanyakan pilihan game, ketersediaan paket, atau bantuan pemasangan PS4.</p></div>
+    <div class="content">
+      <div class="sec-header"><span class="section-kicker">Ada yang ingin ditanyakan?</span><h2>Chat dengan admin</h2><p>Tanyakan pilihan game, ketersediaan paket, atau bantuan pemasangan PS4.</p></div>
       <div class="chat-wrap">
         <div class="chat-list">
-          <div class="chat-list-head">💬 Percakapan</div>
+          <div class="chat-list-head">Teman bantu mainmu</div>
           <div class="chat-item active">
-            <div class="chat-av" style="background:linear-gradient(135deg,#7C3AED,#A855F7)">👨‍💼</div>
+            <div class="chat-av support-avatar">VP</div>
             <div style="flex:1;min-width:0"><div class="chat-item-name">Admin Void Play Box</div><div class="chat-item-prev">Bantuan sewa dan pemasangan PS4</div></div>
           </div>
+          <div class="support-info"><span class="section-kicker">Kami bantu soal</span><ul><li>Paket dan jadwal sewa</li><li>Pilihan game offline</li><li>Pemasangan PS4</li><li>Pengantaran dan penjemputan</li></ul><p>Ceritakan kebutuhanmu lewat pesan. Admin akan membalas di percakapan ini.</p></div>
         </div>
         <div class="chat-main-area">
           <div class="chat-top">
-            <div class="chat-av" id="chatHeadAv" style="background:linear-gradient(135deg,#7C3AED,#A855F7)">👨‍💼</div>
+            <div class="chat-av support-avatar" id="chatHeadAv">VP</div>
             <div><div class="chat-top-name" id="chatHeadName">Admin Void Play Box</div><div class="chat-admin-sub">Kirim pesan, admin akan membalas di sini</div></div>
-            <button class="btn-sm" style="margin-left:auto" onclick="window.open('https://wa.me/6285126539339','_blank')">📱 WA</button>
+            <a class="btn-sm support-whatsapp" href="https://wa.me/6285126539339" target="_blank" rel="noopener noreferrer" aria-label="Hubungi admin melalui WhatsApp">WhatsApp ↗</a>
           </div>
           <div class="chat-msgs" id="chatMsgs">
           </div>
           <div class="chat-quick">
-            <div class="quick-pill" onclick="sendQuick('Berapa harga paket harian?')">Harga paket?</div>
-            <div class="quick-pill" onclick="sendQuick('Apakah bisa bayar COD?')">Bisa COD?</div>
-            <div class="quick-pill" onclick="sendQuick('Berapa lama pengiriman?')">Lama antar?</div>
-            <div class="quick-pill" onclick="sendQuick('Game apa saja yang tersedia?')">Game tersedia?</div>
+            <button type="button" class="quick-pill" onclick="sendQuick('Berapa harga paket harian?')">Harga paket</button>
+            <button type="button" class="quick-pill" onclick="sendQuick('Apakah bisa bayar COD?')">Bayar COD</button>
+            <button type="button" class="quick-pill" onclick="sendQuick('Berapa lama pengiriman?')">Waktu antar</button>
+            <button type="button" class="quick-pill" onclick="sendQuick('Game apa saja yang tersedia?')">Pilihan game</button>
           </div>
           <div class="chat-input-row">
-            <input class="chat-in" id="chatIn" placeholder="Ketik pesan..." onkeydown="if(event.key==='Enter')sendChat()"/>
-            <button class="chat-send-btn" onclick="sendChat()">➤</button>
+            <input class="chat-in" id="chatIn" aria-label="Pesan untuk admin" maxlength="1000" placeholder="Ketik pesan..." onkeydown="if(event.key==='Enter')sendChat()"/>
+            <button class="chat-send-btn" id="userSendBtn" type="button" aria-label="Kirim pesan" onclick="sendChat()">➤</button>
           </div>
         </div>
       </div>
@@ -243,7 +249,7 @@
 
   <!-- TUTORIAL -->
   <section id="tutorial">
-    <div class="content" style="padding-top:0">
+    <div class="content">
       <div class="tut-hero">
         <h2>Panduan PS4 di rumah</h2>
         <p>Dari menyambungkan konsol sampai mulai bermain. Ikuti langkah singkat berikut sesuai kebutuhanmu.</p>
@@ -277,19 +283,19 @@
 <!-- BOOKING PANEL -->
 <div class="booking-panel" id="bookingPanel" onclick="closeBookingOutside(event)">
   <div class="booking-sheet" style="position:relative">
-    <button class="sheet-close" onclick="closeBooking()">✕</button>
+    <button class="sheet-close" type="button" aria-label="Tutup formulir booking" onclick="closeBooking()">✕</button>
     <div class="sheet-handle"></div>
-    <div class="sheet-title">Konfirmasi Booking</div>
-    <div style="background:var(--pu6);border-radius:var(--r-sm);padding:16px;margin-bottom:24px;border:1px solid var(--pu5)">
-      <div style="font-weight:700;font-size:15px" id="bsName">—</div>
-      <div style="font-size:13px;color:var(--muted);margin-top:4px" id="bsDetail">—</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
-        <span style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--pu2)" id="bsPrice">—</span>
-        <span style="font-size:12px;color:var(--muted)">+ Rp 15.000 ongkir</span>
-      </div>
+    <div class="sheet-title">Lengkapi pesananmu</div>
+    <p class="sheet-description">Periksa paket pilihanmu, lalu isi data penerima dan tujuan pengantaran.</p>
+    <div class="booking-summary">
+      <span class="section-kicker">Paket pilihanmu</span><div id="bsName">—</div>
+      <div id="bsDetail">—</div>
+      <div class="booking-cost-row"><span>Harga paket</span><strong id="bsPrice">—</strong></div>
+      <div class="booking-cost-row"><span>Ongkir</span><strong>Rp 15.000</strong></div>
+      <div class="booking-cost-row booking-total"><span>Total pembayaran</span><strong id="bsTotal">—</strong></div>
     </div>
-    <div class="form-group"><label class="form-label">Nama Lengkap</label><input class="form-ctrl" id="bName" placeholder="Nama kamu"/></div>
-    <div class="form-group"><label class="form-label">Nomor WhatsApp</label><input class="form-ctrl" id="bPhone" placeholder="08xxxxxxxxxx"/></div>
+    <div class="form-group"><label class="form-label" for="bName">Nama penerima</label><input class="form-ctrl" id="bName" autocomplete="name" placeholder="Nama lengkap penerima"/></div>
+    <div class="form-group"><label class="form-label" for="bPhone">Nomor WhatsApp</label><input class="form-ctrl" id="bPhone" type="tel" autocomplete="tel" placeholder="08xxxxxxxxxx"/></div>
     <div class="form-group"><label class="form-label" for="bAddr">Alamat Lengkap</label><input class="form-ctrl" id="bAddr" placeholder="Jalan, nomor rumah, kelurahan, kecamatan..."/></div>
     <div class="booking-location">
       <div class="booking-location-head"><div><h4>Titik pengantaran</h4><p>Tambahkan pin agar admin mudah menemukan alamatmu.</p></div></div>
@@ -300,7 +306,7 @@
       <p class="location-help">Ketuk peta atau geser pin untuk menyesuaikan tujuan. Titik dikirim ke admin saat booking dikonfirmasi.</p>
     </div>
     <div class="form-group">
-      <label class="form-label">Metode Pembayaran</label>
+      <label class="form-label" for="bPay">Metode pembayaran</label>
       <select class="form-ctrl" id="bPay">
         <option value="qris">QRIS</option>
         <option value="gopay">GoPay</option>
@@ -317,18 +323,19 @@
      ADMIN SCREEN
 ══════════════════════════ -->
 <div id="adminScreen" class="screen">
-  <aside class="admin-sidebar">
+  <aside class="admin-sidebar" id="adminSidebar" aria-label="Menu admin">
+    <div class="mobile-sidebar-heading"><span>Panel admin</span><button type="button" aria-label="Tutup menu" onclick="closeSidebar()">&times;</button></div>
     <div class="admin-logo"><div class="admin-logo-txt"><img class="brand-logo admin-logo-icon" src="assets/void-play-box.png" alt=""/>Void Play Box</div><div class="admin-logo-sub">Panel Admin</div></div>
     <nav class="admin-nav">
       <div class="anav-group">Dashboard</div>
-      <div class="anav-item active" onclick="adminNav('dashboard',this)"><span class="anav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="11" width="7" height="10" rx="1"/><rect x="3" y="14" width="8" height="7" rx="1"/></svg></span>Overview</div>
+      <button type="button" class="anav-item active" data-section="dashboard" onclick="adminNav('dashboard',this)"><span class="anav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="11" width="7" height="10" rx="1"/><rect x="3" y="14" width="8" height="7" rx="1"/></svg></span>Ringkasan</button>
       <div class="anav-group">Operasional</div>
-      <div class="anav-item" onclick="adminNav('orders',this)"><span class="anav-icon"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-2-1-2 1-2-1-2 1-2-1-2 1zM9 8h6m-6 4h6m-6 4h3"/></svg></span>Pesanan<div class="anav-badge" id="orderBadge">0</div></div>
-      <div class="anav-item" onclick="adminNav('inventory',this)"><span class="anav-icon"><svg viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5 9-5Zm-9 9 9 5 9-5M3 16l9 5 9-5"/></svg></span>Inventaris</div>
-      <div class="anav-item" onclick="adminNav('couriers',this)"><span class="anav-icon"><svg viewBox="0 0 24 24"><path d="M3 7h11v11H3zM14 11h4l3 3v4h-7z"/><circle cx="7.5" cy="19" r="1.5"/><circle cx="18" cy="19" r="1.5"/></svg></span>Kurir</div>
-      <div class="anav-item" onclick="adminNav('chat',this)"><span class="anav-icon"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.5 8.5 0 0 1-12.7 7.4L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5Z"/></svg></span>Chat<div class="anav-badge" id="chatBadge" style="display:none">0</div></div>
+      <button type="button" class="anav-item" data-section="orders" onclick="adminNav('orders',this)"><span class="anav-icon"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-2-1-2 1-2-1-2 1-2-1-2 1zM9 8h6m-6 4h6m-6 4h3"/></svg></span>Pesanan<span class="anav-badge" id="orderBadge">0</span></button>
+      <button type="button" class="anav-item" data-section="inventory" onclick="adminNav('inventory',this)"><span class="anav-icon"><svg viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5 9-5Zm-9 9 9 5 9-5M3 16l9 5 9-5"/></svg></span>Inventaris</button>
+      <button type="button" class="anav-item" data-section="couriers" onclick="adminNav('couriers',this)"><span class="anav-icon"><svg viewBox="0 0 24 24"><path d="M3 7h11v11H3zM14 11h4l3 3v4h-7z"/><circle cx="7.5" cy="19" r="1.5"/><circle cx="18" cy="19" r="1.5"/></svg></span>Kurir</button>
+      <button type="button" class="anav-item" data-section="chat" onclick="adminNav('chat',this)"><span class="anav-icon"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.5 8.5 0 0 1-12.7 7.4L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5Z"/></svg></span>Chat<span class="anav-badge" id="chatBadge" style="display:none">0</span></button>
       <div class="anav-group">Lainnya</div>
-      <div class="anav-item" onclick="adminNav('reports',this)"><span class="anav-icon"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l4-4 4 3 6-7"/></svg></span>Laporan</div>
+      <button type="button" class="anav-item" data-section="reports" onclick="adminNav('reports',this)"><span class="anav-icon"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l4-4 4 3 6-7"/></svg></span>Laporan</button>
     </nav>
     <div class="admin-user">
       <div class="admin-user-av">A</div>
@@ -338,21 +345,23 @@
   </aside>
   <div class="admin-main">
     <div class="admin-topbar">
-      <h2 id="adminTitle">Dashboard Overview</h2>
-      <div class="notif-btn">🔔<div class="notif-dot"></div></div>
-      <div class="admin-user-av">A</div>
+      <button class="mobile-menu-btn" id="adminMenuBtn" type="button" aria-label="Buka menu admin" aria-expanded="false" aria-controls="adminSidebar" onclick="toggleSidebar('admin')">&#9776;</button><div class="admin-topbar-title"><span>VOID PLAY BOX / ADMIN</span><h2 id="adminTitle">Ringkasan operasional</h2></div>
+      <button class="notification-bell" type="button" aria-label="Notifikasi chat" aria-controls="notificationPanel" aria-expanded="false" onclick="ChatNotifications.togglePanel(this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span class="notification-count" hidden></span></button>
+      <div class="admin-user-av topbar-avatar">A</div>
     </div>
     <div class="admin-content">
 
       <!-- DASHBOARD -->
       <div class="admin-section active" id="adm-dashboard">
+        <div class="admin-welcome"><div><span class="section-kicker">Pusat kendali rental PS4</span><h1>Selamat datang, Admin.</h1><p>Pantau pesanan, kelola unit, dan bantu pelanggan dari satu tempat.</p></div><button class="btn-pu" onclick="adminNav('orders')">Kelola pesanan &#8599;</button></div>
+        <div class="admin-quick-grid"><button onclick="adminNav('orders')"><span>01 / PESANAN</span><strong id="adminPendingCount">Memuat pesanan&hellip;</strong><small>Tinjau dan konfirmasi pesanan baru &#8599;</small></button><button onclick="adminNav('inventory')"><span>02 / INVENTARIS</span><strong id="adminAvailableCount">Memuat unit&hellip;</strong><small>Periksa kesiapan konsol PS4 &#8599;</small></button><button onclick="adminNav('chat')"><span>03 / PERCAKAPAN</span><strong id="adminUnreadCount">Belum ada pesan baru</strong><small>Buka chat pelanggan &#8599;</small></button></div>
         <div class="kpi-grid">
           <div class="kpi-card"><div class="kpi-icon-wrap" style="background:#EDE9FE">📋</div><div class="kpi-label">Total Pesanan Aktif</div><div class="kpi-val" id="kpiOrders">–</div><div class="kpi-change" id="kpiSub1"></div></div>
           <div class="kpi-card"><div class="kpi-icon-wrap" style="background:#D1FAE5">💰</div><div class="kpi-label">Pendapatan Bulan Ini</div><div class="kpi-val" id="kpiRevenue">–</div><div class="kpi-change" id="kpiSub2"></div></div>
           <div class="kpi-card"><div class="kpi-icon-wrap" style="background:#FEF3C7">🎮</div><div class="kpi-label">Unit PS Terpakai</div><div class="kpi-val" id="kpiUnits">–</div><div class="kpi-change" id="kpiSub3"></div></div>
           <div class="kpi-card"><div class="kpi-icon-wrap" style="background:#FEE2E2">⭐</div><div class="kpi-label">Rating Rata-rata</div><div class="kpi-val" id="kpiRating">–</div><div class="kpi-change" id="kpiSub4"></div></div>
         </div>
-        <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px">
+        <div class="admin-charts-grid">
           <div class="chart-card">
             <div class="chart-head"><div class="chart-title">Pendapatan 7 Hari Terakhir</div></div>
             <div class="chart-canvas" id="revenueChart"></div>
@@ -361,6 +370,7 @@
             <div class="chart-head"><div class="chart-title">Paket Terpopuler</div></div>
             <div id="popularPkgs" style="display:flex;flex-direction:column;gap:12px;padding-top:8px"></div></div>
         </div>
+        <div class="admin-recent"><div class="admin-block-heading"><div><h3>Pesanan terbaru</h3><p>Aktivitas rental yang perlu dipantau.</p></div><button class="btn-sm" onclick="adminNav('orders')">Lihat semua &#8599;</button></div><div id="adminRecentOrders"></div></div>
       </div>
 
       <!-- ORDERS -->
@@ -379,7 +389,7 @@
 
       <!-- INVENTORY -->
       <div class="admin-section" id="adm-inventory">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+        <div class="admin-section-heading">
           <div><h3 style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800">Inventaris Unit PS</h3><p style="font-size:14px;color:var(--muted);margin-top:4px"><span id="invSummary">memuat…</span></p></div>
           <button class="btn-pu" onclick="addInventory()">+ Tambah Unit</button>
         </div>
@@ -388,7 +398,7 @@
 
       <!-- COURIERS -->
       <div class="admin-section" id="adm-couriers">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+        <div class="admin-section-heading">
           <div><h3 style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800">Manajemen Kurir</h3><p style="font-size:14px;color:var(--muted);margin-top:4px"><span id="courSummary">memuat…</span></p></div>
           <button class="btn-pu" onclick="addCourier()">+ Tambah Kurir</button>
         </div>
@@ -401,15 +411,15 @@
           <div class="chat-list"><div class="chat-list-head">💬 Percakapan Pelanggan</div><div id="admRooms"></div></div>
           <div class="chat-main-area">
             <div class="chat-top"><div class="chat-top-name" id="admChatHead">Pilih percakapan</div></div>
-            <div class="chat-msgs" id="admChatMsgs"></div>
-            <div class="chat-input-row"><input class="chat-in" id="admChatIn" placeholder="Balas pesan..." onkeydown="if(event.key==='Enter')sendAdminChat()"/><button class="chat-send-btn" onclick="sendAdminChat()">➤</button></div>
+            <div class="chat-msgs" id="admChatMsgs"><div class="chat-placeholder"><span aria-hidden="true">?</span><strong>Pilih percakapan pelanggan</strong><p>Pesan, pertanyaan paket, dan bantuan pemasangan ada di sini.</p></div></div>
+            <div class="chat-input-row"><input class="chat-in" id="admChatIn" aria-label="Balasan untuk pelanggan" maxlength="1000" disabled placeholder="Balas pesan..." onkeydown="if(event.key==='Enter')sendAdminChat()"/><button class="chat-send-btn" id="adminSendBtn" type="button" aria-label="Kirim balasan" disabled onclick="sendAdminChat()">➤</button></div>
           </div>
         </div>
       </div>
 
       <!-- REPORTS -->
       <div class="admin-section" id="adm-reports">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div class="admin-reports-grid">
           <div class="chart-card"><div class="chart-head"><div class="chart-title">Pesanan per Bulan (Tahun Ini)</div></div><div class="chart-canvas" id="monthChart"></div></div>
           <div class="chart-card">
             <div class="chart-head"><div class="chart-title">Ringkasan Kinerja</div></div>
@@ -439,6 +449,9 @@
   </div>
 </div>
 
+<button class="sidebar-backdrop" id="sidebarBackdrop" type="button" aria-label="Tutup menu" onclick="closeSidebar()" hidden></button>
+<aside class="notification-panel" id="notificationPanel" aria-label="Notifikasi pesan" hidden><div class="notification-panel-heading"><div><h3>Notifikasi chat</h3><p id="notificationSummary">Belum ada pesan baru</p></div><button type="button" aria-label="Tutup notifikasi" onclick="ChatNotifications.closePanel()">&times;</button></div><div class="notification-settings"><button class="btn-sm" id="enableNotificationsBtn" type="button" onclick="ChatNotifications.enableDevice()">Aktifkan notifikasi perangkat</button><p id="notificationPermissionStatus" role="status">Notifikasi perangkat bekerja saat situs masih terbuka.</p></div><div id="notificationList"><p class="notification-empty">Pesan baru akan muncul di sini.</p></div></aside>
+<div id="notificationLive" class="notification-live" aria-live="polite"></div>
 <!-- TOAST CONTAINER -->
 <div class="toast-container" id="toastContainer"></div>
 
@@ -464,5 +477,6 @@
 <script src="js/user.js"></script>
 <script src="js/maps.js"></script>
 <script src="js/admin.js"></script>
+<script src="js/notifications.js"></script>
 </body>
 </html>

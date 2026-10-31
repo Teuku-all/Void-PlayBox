@@ -1,6 +1,6 @@
 /* admin.js — panel admin: dashboard, pesanan, inventaris, kurir, chat */
 let adminOrders = [], adminInv = [], adminCouriers = [], orderFilter = '';
-let admRoom = null, adminTimer = null;
+let admRoom = null, adminTimer = null, adminChatTimer = null, adminChatRequest = 0;
 
 const COUR_BG = [
   'linear-gradient(135deg,#F59E0B,#FBBF24)', 'linear-gradient(135deg,#10B981,#34D399)',
@@ -20,15 +20,17 @@ async function enterAdmin() {
   await Promise.all([loadOrders(), loadInventory(), loadCouriers()]);
   await loadStats();
   loadRooms();
+  ChatNotifications.start();
+  clearInterval(adminChatTimer);
+  adminChatTimer = setInterval(() => { if (admRoom && ChatNotifications.active(admRoom)) loadAdminChat(); }, 5000);
   adminTimer = setInterval(refreshAdmin, 15000);
   toast('Dashboard Admin siap 🛡️', 'success');
 }
 
-function stopAdminPolling() { clearInterval(adminTimer); admRoom = null; }
+function stopAdminPolling() { clearInterval(adminTimer); clearInterval(adminChatTimer); ++adminChatRequest; admRoom = null; }
 
 async function refreshAdmin() {
   await Promise.all([loadOrders(), loadStats(), loadRooms()]);
-  if (admRoom) loadAdminChat();
 }
 
 /* ══════ DASHBOARD & LAPORAN ══════ */
@@ -46,7 +48,7 @@ async function loadStats() {
     $('kpiSub4').textContent = 'dari ulasan pelanggan';
 
     // 7 hari terakhir (isi hari kosong dengan 0)
-    const byDay = Object.fromEntries(revenue7.map(r => [r.day, r.total]));
+    const byDay = Object.fromEntries(revenue7.map(r => [String(r.day).slice(0, 10), Number(r.total)]));
     const days = [...Array(7)].map((_, i) => new Date(Date.now() - (6 - i) * 864e5).toISOString().slice(0, 10));
     renderBars($('revenueChart'), days.map(d => ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'][new Date(d).getUTCDay()]),
       days.map(d => byDay[d] || 0), v => 'Rp' + Math.round(v / 1000) + 'rb');
@@ -68,10 +70,7 @@ async function loadStats() {
 
 function renderBars(el, labels, vals, fmt, grad) {
   const max = Math.max(...vals, 1);
-  el.innerHTML = `<div style="position:absolute;top:0;left:0;right:0;bottom:24px;display:flex;align-items:flex-end;gap:8px;padding:16px 0 0">
-    ${vals.map((v, i) => `<div class="chart-bar-wrap">
-      <div class="chart-bar" data-val="${fmt(v)}" style="height:${Math.max(v / max * 100, 3)}%${grad ? ';background:' + grad : ''}"></div>
-      <div class="chart-lbl">${labels[i]}</div></div>`).join('')}</div>`;
+  el.innerHTML = vals.every(v => !Number(v)) ? '<div class="admin-empty"><strong>Belum ada aktivitas</strong><p>Grafik akan terisi saat data transaksi tersedia.</p></div>' : `<div class="admin-bar-chart" style="grid-template-columns:repeat(${labels.length},minmax(0,1fr))">${vals.map((v, i) => `<div class="admin-bar-column"><span>${esc(fmt(v))}</span><div class="admin-data-bar" style="height:${Math.max(v / max * 130, 3)}px" title="${esc(labels[i] + ': ' + fmt(v))}"></div><small>${esc(labels[i])}</small></div>`).join('')}</div>`;
 }
 
 /* ══════ PESANAN ══════ */
@@ -79,6 +78,8 @@ async function loadOrders() {
   try { adminOrders = (await api.get('/orders?limit=100')).orders; }
   catch (e) { return toast(e.message, 'error'); }
   $('orderBadge').textContent = adminOrders.filter(o => o.status === 'pending').length;
+  $('adminPendingCount').textContent = `${adminOrders.filter(o => o.status === 'pending').length} menunggu konfirmasi`;
+  $('adminRecentOrders').innerHTML = adminOrders.slice(0, 5).map(o => `<button class="recent-order-row" onclick="viewOrder(${o.id})"><span class="recent-order-avatar">${esc((o.user_name || 'P').charAt(0))}</span><span><strong>${esc(o.user_name)}</strong><small>#${esc(o.order_code)} · ${esc(o.package_name)}</small></span><span class="recent-order-value">${rupiah(o.total)}${statusPill(o.status)}</span><span aria-hidden="true">↗</span></button>`).join('') || '<div class="admin-empty"><strong>Belum ada pesanan</strong><p>Pesanan pelanggan akan tampil di sini setelah mereka melakukan booking.</p></div>';
   renderOrders();
   renderPopular();
 }
@@ -92,12 +93,12 @@ function renderOrders() {
     .map(([k, v]) => `<option value="${k}"${k === cur ? ' selected' : ''}>${v.label}</option>`).join('');
   $('ordersBody').innerHTML = rows.map(o => `
     <tr>
-      <td><span class="td-id">#${esc(o.order_code)}</span></td>
-      <td>${esc(o.user_name)}<div class="order-location-badge">${validMapPoint(o.delivery_lat, o.delivery_lng) ? '● Titik tujuan tersedia' : '○ Belum ada titik tujuan'}</div></td><td>${esc(o.package_name)}</td>
-      <td style="font-weight:600">${rupiah(o.total)}</td>
-      <td>${statusPill(o.status)}</td><td>${esc(o.courier_name || '—')}</td>
-      <td>
-        <select class="form-ctrl" style="width:auto;padding:6px 10px;font-size:12px" onchange="changeStatus(${o.id},this.value)">${opts(o.status)}</select>
+      <td data-label="ID pesanan"><span class="td-id">#${esc(o.order_code)}</span></td>
+      <td data-label="Pelanggan">${esc(o.user_name)}<div class="order-location-badge">${validMapPoint(o.delivery_lat, o.delivery_lng) ? '● Titik tujuan tersedia' : '○ Belum ada titik tujuan'}</div></td><td data-label="Paket">${esc(o.package_name)}</td>
+      <td data-label="Total" style="font-weight:600">${rupiah(o.total)}</td>
+      <td data-label="Status">${statusPill(o.status)}</td><td data-label="Kurir">${esc(o.courier_name || 'Belum ditugaskan')}</td>
+      <td data-label="Tindakan">
+        <select class="form-ctrl" aria-label="Ubah status pesanan ${esc(o.order_code)}" style="width:auto;padding:6px 10px;font-size:12px" onchange="changeStatus(${o.id},this.value)">${opts(o.status)}</select>
         <button class="action-btn action-view" onclick="viewOrder(${o.id})">Detail & lokasi</button>
       </td>
     </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--muted)">Belum ada pesanan</td></tr>';
@@ -166,6 +167,7 @@ async function loadInventory() {
   try { adminInv = (await api.get('/inventory')).inventory; } catch (e) { return toast(e.message, 'error'); }
   const n = k => adminInv.filter(u => u.status === k).length;
   $('invSummary').textContent = `${adminInv.length} unit total · ${n('rented')} disewa · ${n('available')} tersedia`;
+  $('adminAvailableCount').textContent = `${n('available')} unit siap disewa`;
   $('invGrid').innerHTML = adminInv.map(u => `
     <div class="inv-card">
       <div class="inv-img">${PS_ICON[u.ps_type] || '🎮'}</div>
@@ -173,7 +175,7 @@ async function loadInventory() {
       <div style="font-size:12px;color:var(--muted)">${esc(u.serial_no)} · kondisi ${esc(u.condition)}</div>
       <div class="inv-status-row"><span class="inv-avail ${INV_STATUS[u.status].cls}">${INV_STATUS[u.status].txt}</span></div>
       <button class="btn-sm w-full mt-2" onclick="editInventory(${u.id})">Edit</button>
-    </div>`).join('');
+    </div>`).join('') || '<div class="admin-empty"><strong>Belum ada unit PS4</strong><p>Tambahkan unit untuk mulai mengelola inventaris.</p></div>';
 }
 
 function addInventory() {
@@ -222,7 +224,7 @@ async function loadCouriers() {
         </div>
       </div>
       <button class="btn-sm" onclick="editCourier(${c.id})">Detail</button>
-    </div>`).join('');
+    </div>`).join('') || '<div class="admin-empty"><strong>Belum ada kurir</strong><p>Tambahkan kurir untuk mengatur pengantaran.</p></div>';
 }
 
 const COUR_FIELDS = (c = {}) => [
@@ -250,43 +252,62 @@ function editCourier(id) {
 
 /* ══════ CHAT ADMIN ══════ */
 async function loadRooms() {
+  const token = Session.token;
   try {
     const { rooms } = await api.get('/chat/rooms');
-    const unread = rooms.reduce((a, r) => a + (r.unread || 0), 0);
-    const badge = $('chatBadge');
-    badge.textContent = unread; badge.style.display = unread ? '' : 'none';
-    $('admRooms').innerHTML = rooms.map(r => `
-      <div class="chat-item${r.room_id === admRoom ? ' active' : ''}" onclick="openRoom('${esc(r.room_id)}')">
-        <div class="chat-av" style="background:linear-gradient(135deg,#7C3AED,#A855F7)">👤</div>
-        <div style="flex:1;min-width:0"><div class="chat-item-name">${esc(r.user_name || r.room_id)}</div>
-        <div class="chat-item-prev">${esc(r.last_message || '')}</div></div>
-        ${r.unread ? `<div class="chat-unread">${r.unread}</div>` : ''}
-      </div>`).join('') || '<p style="padding:16px;color:var(--muted);font-size:13px">Belum ada percakapan</p>';
-  } catch { /* abaikan */ }
+    if (token !== Session.token || Session.user?.role !== 'admin') return;
+    const html = rooms.map(r => `
+      <button type="button" class="chat-item${r.room_id === admRoom ? ' active' : ''}" data-room="${esc(r.room_id)}">
+        <span class="chat-av room-avatar">${esc((r.user_name || 'P').charAt(0).toUpperCase())}</span>
+        <span class="chat-room-text"><span class="chat-item-name">${esc(r.user_name || 'Pelanggan')}</span><span class="chat-item-prev">${esc(r.last_message || 'Belum ada pesan')}</span></span>
+        ${r.unread ? `<span class="chat-unread">${r.unread}</span>` : ''}
+      </button>`).join('') || '<div class="admin-empty"><strong>Belum ada percakapan</strong><p>Chat pelanggan akan muncul di sini.</p></div>';
+    if ($('admRooms').innerHTML !== html) $('admRooms').innerHTML = html;
+  } catch { /* Keep the previous list until the next successful refresh. */ }
 }
 
 function openRoom(id) {
+  if (!/^user_\d+$/.test(id)) return;
   admRoom = id;
-  $('admChatHead').textContent = id;
-  loadAdminChat();
-  loadRooms();
+  $('admChatHead').textContent = 'Memuat percakapan...';
+  $('admChatMsgs').dataset.messageIds = '';
+  $('admChatMsgs').innerHTML = '<div class="chat-placeholder">Memuat pesan...</div>';
+  $('admChatIn').disabled = false;
+  $('adminSendBtn').disabled = false;
+  loadAdminChat(); loadRooms();
 }
 
 async function loadAdminChat() {
-  if (!admRoom) return;
+  if (!admRoom || Session.user?.role !== 'admin') return;
+  const room = admRoom, token = Session.token, request = ++adminChatRequest;
   try {
-    const { messages } = await api.get(`/chat/${admRoom}/messages`);
+    const { messages } = await api.get(`/chat/${room}/messages`);
+    if (room !== admRoom || token !== Session.token || request !== adminChatRequest) return;
     const box = $('admChatMsgs');
-    box.innerHTML = messages.map(m => bubble(m.message, m.sender_role === 'admin' ? 'mine' : 'theirs', fmtTime(m.created_at))).join('');
-    box.scrollTop = box.scrollHeight;
-    if (messages[0]) $('admChatHead').textContent = (messages.find(m => m.sender_role === 'user') || messages[0]).sender_name;
-  } catch (e) { toast(e.message, 'error'); }
+    const nearBottom = ChatNotifications.atBottom(box), first = !box.dataset.messageIds;
+    const signature = messages.map(m => m.id).join(',');
+    if (signature !== box.dataset.messageIds || first) {
+      box.innerHTML = messages.map(m => bubble(m.message, m.sender_role === 'admin' ? 'mine' : 'theirs', fmtTime(m.created_at))).join('') || '<div class="chat-placeholder">Belum ada pesan di percakapan ini.</div>';
+      box.dataset.messageIds = signature;
+      if (nearBottom || first) box.scrollTop = box.scrollHeight;
+    }
+    $('admChatHead').textContent = messages.find(m => m.sender_role === 'user')?.sender_name || 'Pelanggan';
+    await ChatNotifications.ack(room, messages, box);
+  } catch { /* A visible conversation will retry on the next poll. */ }
 }
 
 async function sendAdminChat() {
-  const inp = $('admChatIn'), txt = inp.value.trim();
-  if (!txt || !admRoom) return;
-  inp.value = '';
-  try { await api.post(`/chat/${admRoom}/messages`, { message: txt }); loadAdminChat(); }
-  catch (e) { toast(e.message, 'error'); }
+  const inp = $('admChatIn'), txt = inp.value.trim(), room = admRoom;
+  if (!txt || !room || $('adminSendBtn').disabled) return;
+  $('adminSendBtn').disabled = true;
+  try {
+    await api.post(`/chat/${room}/messages`, { message: txt });
+    if (admRoom === room) { inp.value = ''; await loadAdminChat(); }
+  } catch (e) { toast(e.message, 'error'); }
+  finally { $('adminSendBtn').disabled = false; }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  $('admRooms').addEventListener('click', event => { const room = event.target.closest('[data-room]'); if (room) openRoom(room.dataset.room); });
+  $('admChatMsgs').addEventListener('scroll', () => { if (admRoom && ChatNotifications.atBottom($('admChatMsgs'))) loadAdminChat(); }, { passive: true });
+});

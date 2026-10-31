@@ -50,6 +50,8 @@ function enterApp(user) {
 }
 
 function logout() {
+  ChatNotifications.stop();
+  closeSidebar(false);
   stopUserPolling();
   stopAdminPolling();
   Session.clear();

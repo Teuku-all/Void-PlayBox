@@ -52,7 +52,7 @@
 .hero-h1{font-weight:800;letter-spacing:-1.8px}
 .chat-admin-sub{font-size:11px;color:#9b85ad;margin-top:4px}
 .section-kicker{display:block;font-size:10px;font-weight:800;letter-spacing:1.8px;color:#8553b6;text-transform:uppercase;margin-bottom:12px}
-#packages .content{padding-top:54px!important}
+#packages .content{padding-top:48px}
 .pricing-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:26px}
 .pricing-heading .sec-header{margin:0}
 .sec-header h2{font-size:32px;letter-spacing:-1px}
@@ -122,7 +122,7 @@
  .pricing-heading{gap:12px;align-items:flex-start;flex-direction:column;margin-bottom:20px}.pricing-count{font-size:11px;padding:0}
  .sec-header h2{font-size:27px}.sec-header p{font-size:12px}
  .section-kicker{font-size:9px;letter-spacing:1.4px;margin-bottom:8px}
- #packages .content{padding-top:36px!important}
+ #packages .content{padding-top:32px}
  .pricing-toolbar{gap:13px;margin-bottom:20px}
  .pkg-tabs{width:100%;max-width:100%;margin:0;padding:4px;gap:2px;box-shadow:none}
  .pkg-tab{flex:1;padding:10px 8px;font-size:11px;white-space:nowrap}
@@ -168,3 +168,85 @@
 .ps4-guide-note{display:flex;align-items:center;gap:20px;justify-content:space-between;border-top:1px solid #ede6f3;padding-top:20px;margin-top:24px}.ps4-guide-note p{font-size:11px;line-height:1.8;color:#8c759e;max-width:700px}.ps4-guide-note button{flex-shrink:0;min-height:42px}
 @media(max-width:1100px) and (min-width:769px){.dashboard-panel{padding:24px}.shortcut{padding:18px 12px;gap:10px;flex-wrap:wrap}.shortcut-arrow{display:none}.shortcut strong{font-size:13px}.dashboard-note{align-items:flex-start}.dashboard-note p{max-width:75%}}
 @media(max-width:600px){.tut-hero{padding:24px 20px}.tut-hero h2{font-size:23px}.tut-hero p{font-size:12px}.tut-tabs{gap:7px}.tut-tab{font-size:11px;padding:10px 12px}.ps4-guide{padding:22px 18px}.ps4-guide-steps{grid-template-columns:1fr;gap:22px}.ps4-guide-heading h3{font-size:18px}.ps4-guide-note{flex-direction:column;align-items:flex-start;gap:12px}.ps4-guide-note button{width:100%}}
+
+/* One spacing rhythm and readable controls across all customer sections. */
+#userScreen{--user-gap:48px}
+#userScreen>section:not(#home):not(#games)>.content{padding-top:var(--user-gap);padding-bottom:0}
+#userScreen>.how-content{padding-top:40px;padding-bottom:48px}
+#userScreen .games-content{padding-top:44px;padding-bottom:38px}
+#userScreen .sec-header{margin-bottom:26px}
+#userScreen .sec-header h2{font-size:30px;font-weight:800;line-height:1.3;letter-spacing:-.8px}
+#userScreen .sec-header p{font-size:13px;line-height:1.8;color:#786b84;max-width:600px}
+#userScreen .pricing-heading .sec-header{margin-bottom:0}
+#userScreen .games-heading .sec-header p{color:#c5b3d7;margin-inline:auto}
+#userScreen .pkg-card{padding:24px;border-radius:18px}
+#userScreen .pkg-features li{font-size:12px;line-height:1.7}
+#userScreen .pkg-price span{font-size:11px}
+#userScreen .btn-pkg{font-size:13px;min-height:46px;padding:13px 16px}
+#userScreen .how-item p{font-size:12px;line-height:1.8}
+#userScreen .how-item h4{font-size:14px}
+#userScreen .games-arrow{min-width:40px;min-height:40px}
+#userScreen .track-card{padding:22px;border:1px solid #e5ddec;border-radius:16px;background:#fff}
+#userScreen .track-head{align-items:flex-start;gap:12px;margin-bottom:16px}
+#userScreen .track-id{font:700 11px/1.7 'Manrope',sans-serif;color:#7d4ba5;overflow-wrap:anywhere}
+#userScreen .track-head .track-pill{font-size:9px;padding:5px 9px;white-space:nowrap;flex-shrink:0}
+.track-package{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;font-size:13px;line-height:1.7;color:#564064}
+.track-package strong{font-size:13px;font-weight:700}.track-package>span{font-size:12px;font-weight:700;flex-shrink:0}
+#userScreen .track-card .progress-bar-wrap{height:5px;margin:20px 0 10px}
+.track-steps{display:flex;justify-content:space-between;gap:6px;font-size:9px;color:#9984a8;margin-bottom:20px}
+#userScreen .track-card .courier-row{background:#f7f3fb;padding:12px;border-radius:10px;gap:10px}
+#userScreen .track-card .courier-av{width:32px;height:32px;font-size:16px;border-radius:10px;flex-shrink:0}
+.courier-info{flex:1;min-width:0}#userScreen .track-card .courier-name{font-size:11px;line-height:1.6}#userScreen .track-card .courier-sub{font-size:10px;line-height:1.6;margin-top:3px;color:#9a85aa}
+.track-actions{display:flex;align-items:center;gap:10px;margin-top:16px}.track-actions>.btn-sm{flex:1;font-family:inherit;font-size:10px;border-radius:9px;min-height:40px;padding:10px 8px;line-height:1.5}.track-actions>.btn-sm:first-child{background:#f0e7f8;border-color:#e2d0ef;color:#8150a5}
+#userScreen #chat-sec .chat-wrap{grid-template-columns:260px minmax(0,1fr);height:560px;border:1px solid #e5dcec;border-radius:20px;box-shadow:0 5px 24px #2a153303}
+#userScreen #chat-sec .chat-list{background:#fcfaff}
+#userScreen #chat-sec .chat-list-head{padding:22px 20px;font-size:13px;color:#694a7e;border-color:#eee6f4}
+#userScreen #chat-sec .chat-item{padding:20px;gap:12px;border-left:0;background:#f4edf9;cursor:default}
+.support-avatar{background:#e8d9f5;color:#8d5aaf;font-size:12px;font-weight:800;border-radius:11px}
+#userScreen .chat-item-name{font-size:12px;line-height:1.6}#userScreen .chat-item-prev{font-size:10px;line-height:1.6;white-space:normal;color:#9f86ad}
+.support-info{padding:26px 22px}.support-info .section-kicker{font-size:8px;letter-spacing:1.1px}.support-info ul{list-style:none;display:grid;gap:13px;font-size:11px;color:#846994;line-height:1.7}.support-info li::before{content:'✓';color:#b28bc9;margin-right:8px}.support-info>p{font-size:10px;color:#aa90b7;line-height:1.9;margin-top:24px;padding-top:20px;border-top:1px solid #ede2f4}
+#userScreen #chat-sec .chat-top{min-height:82px;padding:18px 22px;gap:12px}.support-whatsapp{display:inline-flex;align-items:center;justify-content:center;min-height:38px;margin-left:auto;flex-shrink:0;font-size:10px;border-radius:9px;text-decoration:none;padding:9px 12px}
+#userScreen #chat-sec .chat-top-name{font-size:13px;line-height:1.5}.chat-admin-sub{font-size:10px;line-height:1.6}
+#userScreen #chat-sec .chat-msgs{padding:24px;gap:18px}
+#userScreen #chat-sec .msg-bubble{font-size:13px;line-height:1.8;padding:12px 16px;border-radius:14px}
+#userScreen #chat-sec .msg-row.mine .msg-bubble{background:#8150b2;border-bottom-right-radius:4px}
+#userScreen #chat-sec .msg-row.theirs .msg-bubble{background:#f3edf8;border-bottom-left-radius:4px;color:#6e557e}
+#userScreen #chat-sec .msg-time{font-size:9px;color:#ab96b7}
+#userScreen #chat-sec .chat-quick{flex-wrap:nowrap;overflow-x:auto;padding:12px 18px;gap:8px;max-height:none;border-color:#f0e7f5;scrollbar-width:thin}
+#userScreen #chat-sec .quick-pill{font-family:inherit;white-space:nowrap;flex-shrink:0;min-height:36px;border-radius:8px;font-size:10px;padding:9px 12px;border-color:#e8ddef;background:#faf7fd;color:#946aa9}
+#userScreen #chat-sec .chat-input-row{padding:16px 20px;border-color:#eee5f4;gap:10px}
+#userScreen #chat-sec .chat-in{border-radius:11px;background:#faf7fd;border:1px solid #e5d8ee;min-height:46px;font-size:14px;padding:12px 14px}
+#userScreen #chat-sec .chat-send-btn{border-radius:11px;background:#8050b2;width:44px;height:44px;flex-shrink:0}
+#userScreen .site-footer{margin-top:48px;padding:42px 40px 24px;background:#241437}
+#userScreen .footer-inner{max-width:1160px}
+#userScreen .footer-grid{gap:32px;margin-bottom:32px;grid-template-columns:1.4fr .8fr .8fr 1.2fr}
+#userScreen .footer-brand h3{font-family:'Manrope',sans-serif;font-size:20px;font-weight:800;margin-bottom:14px}
+#userScreen .footer-brand p{font-size:12px;line-height:1.9;color:#baa6ca;opacity:1}
+#userScreen .footer-col h4{font-family:'Manrope',sans-serif;font-size:12px;font-weight:700;margin-bottom:16px;color:#dcc8ea}
+#userScreen .footer-col a{font-size:11px;line-height:1.8;color:#b49ac5;opacity:1;overflow-wrap:anywhere}
+#userScreen .footer-col a[href]:hover{color:#fff}
+#userScreen .footer-bottom{font-size:10px;line-height:1.8;opacity:1;color:#917bA3;border-color:#ffffff14;gap:20px}
+.booking-sheet .sheet-title{font:800 23px/1.4 'Manrope',sans-serif;letter-spacing:-.6px;color:#3f2554;margin-bottom:8px;padding-right:28px}
+.sheet-description{font-size:12px;line-height:1.8;color:#9881a7;margin-bottom:22px}
+.booking-summary{padding:20px;border:1px solid #e8dbf2;border-radius:14px;background:#f8f3fc;margin-bottom:24px}
+.booking-summary .section-kicker{font-size:8px;letter-spacing:1.1px;margin-bottom:8px}
+#bsName{font-size:15px;font-weight:800;line-height:1.6;color:#5c3d72}#bsDetail{font-size:11px;line-height:1.8;color:#a086b0;margin-top:4px;margin-bottom:18px}
+.booking-cost-row{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:11px;line-height:1.8;color:#9a7fac;margin-top:7px}.booking-cost-row strong{font-size:12px;color:#77518e;font-weight:600}
+.booking-total{border-top:1px solid #e7d7f1;padding-top:12px;margin-top:14px;color:#76528c;font-weight:700}.booking-total strong{font-size:20px;letter-spacing:-.5px;color:#7c46a6;font-weight:800}
+.booking-sheet .form-label{font-size:11px;color:#8c6f9e;letter-spacing:0;margin-bottom:8px}.booking-sheet .form-ctrl{background:#fcf9ff;border:1px solid #e5d8ef;border-radius:10px;min-height:46px;font-size:14px;padding:12px 14px}.booking-sheet .form-group{margin-bottom:18px}.booking-sheet #bookBtn{border-radius:11px;background:#7f4bb0;font:700 13px/1.5 'Manrope',sans-serif!important;min-height:48px;box-shadow:none}
+@media(max-width:1000px){#userScreen #chat-sec .chat-wrap{grid-template-columns:1fr}#userScreen #chat-sec .chat-list{display:none}#userScreen .footer-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:768px){
+ #userScreen{--user-gap:34px}#userScreen>.how-content{padding-top:30px;padding-bottom:34px}#userScreen .games-content{padding-top:34px;padding-bottom:28px}
+ #userScreen .sec-header{margin-bottom:22px}#userScreen .sec-header h2{font-size:25px;letter-spacing:-.6px}#userScreen .sec-header p{font-size:12px;line-height:1.8}#userScreen .section-kicker{font-size:8px;letter-spacing:1.3px}
+ #userScreen .hero-gallery{height:210px}#userScreen .hero-game{height:155px;width:112px}#userScreen .hero-game:nth-child(2){width:132px;height:186px}#userScreen .hero-game:first-child{transform:translateX(-74px) rotate(-13deg)}#userScreen .hero-game:nth-child(3){transform:translateX(74px) rotate(15deg)}
+ #userScreen .hero-caption{font-size:8px;letter-spacing:.2px;line-height:1.8}#userScreen .hero-gallery-tag{font-size:9px;padding:10px 12px}
+ #userScreen .pkg-card{padding:20px}#userScreen .pkg-features{gap:8px 16px}#userScreen .pkg-features li{font-size:11px}#userScreen .btn-pkg{font-size:12px;min-height:46px}
+ #userScreen .how-grid{gap:24px 20px}#userScreen .how-item h4{font-size:13px}#userScreen .how-item p{font-size:11px}#userScreen .how-section{padding:24px 20px}
+ #userScreen .track-card{padding:18px}#userScreen .track-head{flex-wrap:wrap;gap:9px;margin-bottom:14px}.track-package{gap:10px}.track-package strong{font-size:12px}.track-package>span{font-size:11px}.track-actions{gap:8px}.track-actions>.btn-sm{font-size:10px;min-height:42px}
+ #userScreen #chat-sec .chat-wrap{height:600px;height:min(660px,76svh);min-height:470px;border-radius:16px}#userScreen #chat-sec .chat-top{padding:15px;gap:10px;min-height:76px}#userScreen #chat-sec .chat-top-name{font-size:12px}#userScreen .chat-admin-sub{font-size:9px;max-width:170px}.support-avatar{width:32px;height:32px;font-size:10px;flex-shrink:0}.support-whatsapp{font-size:9px;min-height:36px;padding:8px 9px}
+ #userScreen #chat-sec .chat-msgs{padding:18px 16px}#userScreen #chat-sec .msg-bubble{font-size:12px;line-height:1.8;padding:11px 14px}#userScreen #chat-sec .msg-row{max-width:90%}
+ #userScreen #chat-sec .chat-quick{padding:10px 12px;gap:7px}#userScreen #chat-sec .quick-pill{font-size:10px;padding:8px 11px}#userScreen #chat-sec .chat-input-row{padding:12px;gap:8px}#userScreen #chat-sec .chat-in{font-size:16px;min-height:44px;padding:11px 12px}
+ #userScreen .site-footer{margin-top:34px;padding:32px 20px 22px}#userScreen .footer-grid{gap:26px 22px;margin-bottom:28px}#userScreen .footer-brand{grid-column:1/-1}#userScreen .footer-brand p{max-width:100%;font-size:11px}#userScreen .footer-col:last-child{grid-column:1/-1}#userScreen .footer-col h4{font-size:12px;margin-bottom:12px}#userScreen .footer-col a{font-size:11px;margin-bottom:7px}#userScreen .footer-bottom{flex-direction:column;align-items:flex-start;gap:7px;font-size:9px}
+ .booking-summary{padding:18px}.booking-sheet .sheet-title{font-size:22px}.booking-sheet .sheet-handle{margin-bottom:22px}.sheet-description{font-size:11px;margin-bottom:20px}.booking-sheet .form-ctrl{font-size:16px}.booking-total strong{font-size:20px}
+}
+@media(max-width:360px){#userScreen #chat-sec .chat-top .support-avatar{display:none}#userScreen .hero-actions .btn-hero{padding-inline:12px}.track-actions{flex-wrap:wrap}.track-actions>.btn-sm{flex-basis:100%}}

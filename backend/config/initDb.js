@@ -122,6 +122,7 @@ async function createSchemaAndSeed() {
     'CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status)',
     'CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at)',
     'CREATE INDEX IF NOT EXISTS idx_chat_room_id ON chat_messages(room_id)',
+    'CREATE INDEX IF NOT EXISTS idx_chat_unread_role ON chat_messages(sender_role, id DESC) WHERE is_read = 0',
     'CREATE INDEX IF NOT EXISTS idx_tracking_order_id ON order_tracking(order_id)',
     'CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)',
     `ALTER TABLE orders DROP CONSTRAINT IF EXISTS orders_payment_method_check`,
