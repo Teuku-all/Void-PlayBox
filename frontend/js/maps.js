@@ -10,8 +10,8 @@ function validMapPoint(lat, lng) {
 }
 
 function mapIcon(kind) {
-  const symbols = { store: '▣', home: '⌂', self: '◎', courier: '↗' };
-  return L.divIcon({ className: 'delivery-pin-icon', html: `<span class="delivery-pin delivery-pin-${kind}"><span>${symbols[kind] || '•'}</span></span>`, iconSize: [38, 44], iconAnchor: [19, 42], tooltipAnchor: [0, -38] });
+  const symbols = { store: 'box', home: 'home', self: 'map-pin', courier: 'truck' };
+  return L.divIcon({ className: 'delivery-pin-icon', html: `<span class="delivery-pin delivery-pin-${kind}"><span>${icon(symbols[kind] || 'map-pin')}</span></span>`, iconSize: [38, 44], iconAnchor: [19, 42], tooltipAnchor: [0, -38] });
 }
 
 function addMapTiles(instance, onError) {
@@ -70,7 +70,7 @@ function locationStatus(message) {
 function updateLocationUI() {
   for (const id of ['locateMapBtn', 'locateBookingBtn']) {
     $(id).disabled = locationBusy;
-    $(id).textContent = locationBusy ? 'Mencari lokasi…' : '◎ Gunakan lokasi saya';
+    $(id).innerHTML = icon(locationBusy ? 'refresh-cw' : 'map-pin') + (locationBusy ? ' Mencari lokasi…' : ' Gunakan lokasi saya');
   }
   const point = deliveryLocation;
   const coords = point ? `${point.lat.toFixed(6)}, ${point.lng.toFixed(6)}` : '';

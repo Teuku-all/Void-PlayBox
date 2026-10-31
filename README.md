@@ -2,6 +2,22 @@
 
 Frontend vanilla HTML/CSS/JavaScript dengan API Node.js, Express, SQLite, dan autentikasi JWT. Peta menggunakan Leaflet, OpenStreetMap, dan OSRM tanpa API key.
 
+## Aplikasi Android
+
+Proyek APK tersedia di [`android/`](android/README.md). APK versi uji setelah build berada di
+`android/dist/VoidPlayBox-1.0.0-debug.apk`. Mendukung Android 8.0 ke atas dan membutuhkan internet.
+Login APK memakai email/password; login Google dibuka di browser dengan sesi terpisah.
+Lihat panduan Android untuk build ulang dan pemeriksaan perangkat.
+
+## Pratinjau tampilan web
+
+Dari folder proyek, jalankan `node scripts/preview.mjs`, lalu buka **http://127.0.0.1:4173**.
+Pratinjau menyajikan frontend lokal dan meneruskan API ke backend yang sudah aktif.
+Paket dan game dapat dilihat tanpa akun; login diminta saat memesan. Pesanan yang dikirim
+melalui pratinjau tetap masuk ke layanan asli. Untuk memakai backend pengembangan lain,
+atur `PREVIEW_API_URL` ke origin backend tersebut sebelum menjalankan server.
+Perubahan tampilan lokal baru terlihat di web online dan APK setelah frontend dideploy.
+
 ## Struktur proyek
 
 ```text

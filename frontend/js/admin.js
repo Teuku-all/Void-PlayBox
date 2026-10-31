@@ -3,16 +3,16 @@ let adminOrders = [], adminInv = [], adminCouriers = [], orderFilter = '';
 let admRoom = null, adminTimer = null, adminChatTimer = null, adminChatRequest = 0;
 
 const COUR_BG = [
-  'linear-gradient(135deg,#F59E0B,#FBBF24)', 'linear-gradient(135deg,#10B981,#34D399)',
-  'linear-gradient(135deg,#3B82F6,#60A5FA)', 'linear-gradient(135deg,#EC4899,#F472B6)',
+  '#e8eefb', '#e7f2ed', '#eef0f5', '#f4eee6',
 ];
 const INV_STATUS = {
   rented: { cls: 'avail-few', txt: 'Sedang Disewa' },
   available: { cls: 'avail-yes', txt: 'Tersedia' },
-  maintenance: { cls: 'avail-no', txt: 'Maintenance' },
+  maintenance: { cls: 'avail-no', txt: 'Perawatan' },
 };
 const PS_OPTIONS = [{ value: 'ps4_slim', label: 'PS4 Slim' }, { value: 'ps4_pro', label: 'PS4 Pro' }];
-const COND_OPTIONS = ['excellent', 'good', 'fair', 'poor'].map(v => ({ value: v, label: v }));
+const CONDITION_LABELS = { excellent: 'Sangat baik', good: 'Baik', fair: 'Cukup', poor: 'Perlu diperiksa' };
+const COND_OPTIONS = Object.entries(CONDITION_LABELS).map(([value, label]) => ({ value, label }));
 
 async function enterAdmin() {
   const s = $('adminScreen');
@@ -24,7 +24,7 @@ async function enterAdmin() {
   clearInterval(adminChatTimer);
   adminChatTimer = setInterval(() => { if (admRoom && ChatNotifications.active(admRoom)) loadAdminChat(); }, 5000);
   adminTimer = setInterval(refreshAdmin, 15000);
-  toast('Dashboard Admin siap 🛡️', 'success');
+  toast('Panel admin siap', 'success');
 }
 
 function stopAdminPolling() { clearInterval(adminTimer); clearInterval(adminChatTimer); ++adminChatRequest; admRoom = null; }
@@ -43,7 +43,7 @@ async function loadStats() {
     $('kpiRevenue').textContent = rupiahShort(s.revenue_month);
     $('kpiSub2').textContent = `Total ${rupiah(s.revenue_total)}`;
     $('kpiUnits').textContent = `${s.inventory_rented} / ${totalUnits}`;
-    $('kpiSub3').textContent = totalUnits ? `${Math.round(s.inventory_rented / totalUnits * 100)}% utilisasi` : '—';
+    $('kpiSub3').textContent = totalUnits ? `${Math.round(s.inventory_rented / totalUnits * 100)}% unit sedang disewa` : 'Belum ada unit';
     $('kpiRating').textContent = s.avg_rating;
     $('kpiSub4').textContent = 'dari ulasan pelanggan';
 
@@ -70,7 +70,7 @@ async function loadStats() {
 
 function renderBars(el, labels, vals, fmt, grad) {
   const max = Math.max(...vals, 1);
-  el.innerHTML = vals.every(v => !Number(v)) ? '<div class="admin-empty"><strong>Belum ada aktivitas</strong><p>Grafik akan terisi saat data transaksi tersedia.</p></div>' : `<div class="admin-bar-chart" style="grid-template-columns:repeat(${labels.length},minmax(0,1fr))">${vals.map((v, i) => `<div class="admin-bar-column"><span>${esc(fmt(v))}</span><div class="admin-data-bar" style="height:${Math.max(v / max * 130, 3)}px" title="${esc(labels[i] + ': ' + fmt(v))}"></div><small>${esc(labels[i])}</small></div>`).join('')}</div>`;
+  el.innerHTML = vals.every(v => !Number(v)) ? '<div class="admin-empty"><strong>Belum ada aktivitas</strong><p>Grafik muncul setelah ada transaksi.</p></div>' : `<div class="admin-bar-chart" style="grid-template-columns:repeat(${labels.length},minmax(0,1fr))">${vals.map((v, i) => `<div class="admin-bar-column"><span>${esc(fmt(v))}</span><div class="admin-data-bar" style="height:${Math.max(v / max * 130, 3)}px" title="${esc(labels[i] + ': ' + fmt(v))}"></div><small>${esc(labels[i])}</small></div>`).join('')}</div>`;
 }
 
 /* ══════ PESANAN ══════ */
@@ -79,7 +79,7 @@ async function loadOrders() {
   catch (e) { return toast(e.message, 'error'); }
   $('orderBadge').textContent = adminOrders.filter(o => o.status === 'pending').length;
   $('adminPendingCount').textContent = `${adminOrders.filter(o => o.status === 'pending').length} menunggu konfirmasi`;
-  $('adminRecentOrders').innerHTML = adminOrders.slice(0, 5).map(o => `<button class="recent-order-row" onclick="viewOrder(${o.id})"><span class="recent-order-avatar">${esc((o.user_name || 'P').charAt(0))}</span><span><strong>${esc(o.user_name)}</strong><small>#${esc(o.order_code)} · ${esc(o.package_name)}</small></span><span class="recent-order-value">${rupiah(o.total)}${statusPill(o.status)}</span><span aria-hidden="true">↗</span></button>`).join('') || '<div class="admin-empty"><strong>Belum ada pesanan</strong><p>Pesanan pelanggan akan tampil di sini setelah mereka melakukan booking.</p></div>';
+  $('adminRecentOrders').innerHTML = adminOrders.slice(0, 5).map(o => `<button class="recent-order-row" onclick="viewOrder(${o.id})"><span class="recent-order-avatar">${esc((o.user_name || 'P').charAt(0))}</span><span><strong>${esc(o.user_name)}</strong><small>#${esc(o.order_code)} · ${esc(o.package_name)}</small></span><span class="recent-order-value">${rupiah(o.total)}${statusPill(o.status)}</span><span aria-hidden="true">${icon('arrow-up-right')}</span></button>`).join('') || '<div class="admin-empty"><strong>Belum ada pesanan</strong><p>Pesanan baru akan muncul di sini.</p></div>';
   renderOrders();
   renderPopular();
 }
@@ -94,14 +94,14 @@ function renderOrders() {
   $('ordersBody').innerHTML = rows.map(o => `
     <tr>
       <td data-label="ID pesanan"><span class="td-id">#${esc(o.order_code)}</span></td>
-      <td data-label="Pelanggan">${esc(o.user_name)}<div class="order-location-badge">${validMapPoint(o.delivery_lat, o.delivery_lng) ? '● Titik tujuan tersedia' : '○ Belum ada titik tujuan'}</div></td><td data-label="Paket">${esc(o.package_name)}</td>
+      <td data-label="Pelanggan">${esc(o.user_name)}<div class="order-location-badge">${icon('map-pin')}${validMapPoint(o.delivery_lat, o.delivery_lng) ? 'Titik tersimpan' : 'Belum ada titik'}</div></td><td data-label="Paket">${esc(o.package_name)}</td>
       <td data-label="Total" style="font-weight:600">${rupiah(o.total)}</td>
       <td data-label="Status">${statusPill(o.status)}</td><td data-label="Kurir">${esc(o.courier_name || 'Belum ditugaskan')}</td>
       <td data-label="Tindakan">
         <select class="form-ctrl" aria-label="Ubah status pesanan ${esc(o.order_code)}" style="width:auto;padding:6px 10px;font-size:12px" onchange="changeStatus(${o.id},this.value)">${opts(o.status)}</select>
-        <button class="action-btn action-view" onclick="viewOrder(${o.id})">Detail & lokasi</button>
+        <button class="action-btn action-view" onclick="viewOrder(${o.id})">Detail ${icon('chevron-right')}</button>
       </td>
-    </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--muted)">Belum ada pesanan</td></tr>';
+    </tr>`).join('') || `<tr><td colspan="7" class="admin-empty">${orderFilter ? 'Tidak ada pesanan yang cocok.' : 'Belum ada pesanan.'}</td></tr>`;
 }
 
 function renderPopular() {
@@ -148,15 +148,16 @@ async function viewOrder(id) {
     const coords = hasLocation ? `${Number(o.delivery_lat).toFixed(6)}, ${Number(o.delivery_lng).toFixed(6)}` : '';
     openForm({
       title: '#' + o.order_code,
-      html: `<div style="font-size:14px;line-height:1.8">
-        👤 ${esc(o.user_name)} · ${esc(o.user_phone || '—')}<br>
-        📦 ${esc(o.package_name)} · ${rupiah(o.total)} (${esc(o.payment_method.toUpperCase())}, ${esc(o.payment_status)})<br>
-        📍 ${esc(o.delivery_address)}<br>📝 ${esc(o.notes || '—')}</div>
+      html: `<div class="admin-order-summary">
+        <div>${icon('users')}<span><small>Pelanggan</small><strong>${esc(o.user_name)}</strong><span>${esc(o.user_phone || 'Nomor belum tersedia')}</span></span></div>
+        <div>${icon('package')}<span><small>Paket sewa</small><strong>${esc(o.package_name)}</strong><span>${rupiah(o.total)} · ${esc(o.payment_method.toUpperCase())} · ${esc(o.payment_status)}</span></span></div>
+        <div>${icon('map-pin')}<span><small>Alamat pengiriman</small><strong>${esc(o.delivery_address)}</strong></span></div>
+        ${o.notes ? `<div>${icon('info')}<span><small>Catatan pelanggan</small><span>${esc(o.notes)}</span></span></div>` : ''}</div>
         <div class="admin-location-card"><h4>Tujuan pengantaran</h4>
-        ${hasLocation ? `<p>Pin yang tersimpan pada pesanan · ${coords}</p><div id="adminOrderMap" role="region" aria-label="Peta tujuan pengantaran pelanggan"></div><div class="admin-location-actions"><a class="btn-sm" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(coords)}" target="_blank" rel="noopener noreferrer">↗ Buka rute di Google Maps</a><button type="button" class="btn-sm" onclick="copyCoordinates(${Number(o.delivery_lat)},${Number(o.delivery_lng)})">Salin koordinat</button></div>` : '<p>Pelanggan belum menambahkan titik tujuan. Gunakan alamat tertulis atau minta pelanggan menyimpan titik melalui menu Pengiriman.</p>'}
+        ${hasLocation ? `<p>${coords}</p><div id="adminOrderMap" role="region" aria-label="Peta tujuan pengantaran pelanggan"></div><div class="admin-location-actions"><a class="btn-sm" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(coords)}" target="_blank" rel="noopener noreferrer">${icon('navigation')} Buka rute Maps</a><button type="button" class="btn-sm" onclick="copyCoordinates(${Number(o.delivery_lat)},${Number(o.delivery_lng)})">${icon('copy')} Salin koordinat</button></div>` : '<p>Belum ada titik tujuan. Gunakan alamat di atas atau minta pelanggan menambahkan titik pengiriman.</p>'}
         </div>
-        <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--pu5);font-size:13px">
-        ${tracking.map(t => `<div style="padding:5px 0">🕒 ${fmtTime(t.created_at)} · ${esc(t.message)}</div>`).join('')}</div>`,
+        <div class="admin-order-timeline">
+        ${tracking.map(t => `<div>${icon('clock')}<span><time>${fmtTime(t.created_at)}</time>${esc(t.message)}</span></div>`).join('')}</div>`,
     });
     if (hasLocation) showAdminOrderMap(o);
   } catch (e) { toast(e.message, 'error'); }
@@ -170,11 +171,11 @@ async function loadInventory() {
   $('adminAvailableCount').textContent = `${n('available')} unit siap disewa`;
   $('invGrid').innerHTML = adminInv.map(u => `
     <div class="inv-card">
-      <div class="inv-img">${PS_ICON[u.ps_type] || '🎮'}</div>
+      <div class="inv-img">${icon('gamepad')}</div>
       <div class="inv-name">${esc(u.name)}</div>
-      <div style="font-size:12px;color:var(--muted)">${esc(u.serial_no)} · kondisi ${esc(u.condition)}</div>
+      <div class="inv-description">${esc(u.serial_no)} · ${esc(CONDITION_LABELS[u.condition] || u.condition)}</div>
       <div class="inv-status-row"><span class="inv-avail ${INV_STATUS[u.status].cls}">${INV_STATUS[u.status].txt}</span></div>
-      <button class="btn-sm w-full mt-2" onclick="editInventory(${u.id})">Edit</button>
+      <button class="btn-sm w-full mt-2" onclick="editInventory(${u.id})">${icon('settings')} Kelola unit</button>
     </div>`).join('') || '<div class="admin-empty"><strong>Belum ada unit PS4</strong><p>Tambahkan unit untuk mulai mengelola inventaris.</p></div>';
 }
 
@@ -211,13 +212,13 @@ async function loadCouriers() {
   $('courSummary').textContent = `${adminCouriers.filter(c => c.status === 'active').length} kurir aktif`;
   $('courierGrid').innerHTML = adminCouriers.map((c, i) => `
     <div class="cour-card">
-      <div class="cour-av" style="background:${COUR_BG[i % COUR_BG.length]}">🛵</div>
+      <div class="cour-av" style="background:${COUR_BG[i % COUR_BG.length]}">${icon('truck')}</div>
       <div class="cour-info">
         <div class="cour-name">${esc(c.name)}</div>
         <div class="cour-sub">${esc(c.phone)}</div>
         <div class="cour-sub" style="margin-top:4px">${c.status === 'active'
-          ? '<span style="color:#10B981;font-weight:600">● Aktif</span>'
-          : `<span style="color:var(--muted)">○ ${c.status === 'off' ? 'Off' : 'Nonaktif'}</span>`}</div>
+          ? '<span class="cour-status cour-status-active">Aktif</span>'
+          : `<span class="cour-status">${c.status === 'off' ? 'Istirahat' : 'Nonaktif'}</span>`}</div>
         <div class="cour-stats">
           <div class="cour-stat"><div class="cour-stat-v">${c.total_deliver}</div><div class="cour-stat-l">Antar</div></div>
           <div class="cour-stat"><div class="cour-stat-v">${c.rating}</div><div class="cour-stat-l">Rating</div></div>
@@ -245,7 +246,7 @@ function editCourier(id) {
   openForm({
     title: 'Kurir — ' + c.name,
     fields: [...COUR_FIELDS(c), { name: 'status', label: 'Status', value: c.status,
-      options: [{ value: 'active', label: 'Aktif' }, { value: 'off', label: 'Off' }, { value: 'inactive', label: 'Nonaktif' }] }],
+      options: [{ value: 'active', label: 'Aktif' }, { value: 'off', label: 'Istirahat' }, { value: 'inactive', label: 'Nonaktif' }] }],
     onSubmit: async d => { await api.put('/couriers/' + id, d); toast('Kurir diperbarui', 'success'); await loadCouriers(); },
   });
 }

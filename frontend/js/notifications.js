@@ -24,7 +24,7 @@ const ChatNotifications = (() => {
     $('adminUnreadCount').textContent = total ? `${total} pesan belum dibaca` : 'Semua pesan sudah dibaca';
     $('notificationSummary').textContent = total ? `${total} pesan belum dibaca` : 'Belum ada pesan baru';
     document.title = total ? `(${total}) ${baseTitle}` : baseTitle;
-    const html = unread.length ? unread.map(m => `<button class="notification-item" type="button" data-room="${esc(m.room_id)}"><span class="notification-avatar">${esc((m.sender_name || 'P').charAt(0).toUpperCase())}</span><span><strong>${esc(m.sender_name || 'Pesan baru')}</strong><span class="notification-preview">${esc(m.message)}</span><small>Buka percakapan ↗</small></span><i aria-hidden="true"></i></button>`).join('') : '<div class="notification-empty"><span aria-hidden="true">✓</span><strong>Tidak ada pesan yang terlewat</strong><p>Pesan baru dari percakapanmu akan muncul di sini.</p></div>';
+    const html = unread.length ? unread.map(m => `<button class="notification-item" type="button" data-room="${esc(m.room_id)}"><span class="notification-avatar">${esc((m.sender_name || 'P').charAt(0).toUpperCase())}</span><span><strong>${esc(m.sender_name || 'Pesan baru')}</strong><span class="notification-preview">${esc(m.message)}</span><small>Buka percakapan</small></span><i aria-hidden="true"></i></button>`).join('') : `<div class="notification-empty"><span>${icon('check-circle')}</span><strong>Semua pesan sudah dibaca.</strong><p>Pesan baru akan muncul di sini.</p></div>`;
     if ($('notificationList').innerHTML !== html) $('notificationList').innerHTML = html;
     updatePermission();
   }
@@ -48,7 +48,7 @@ const ChatNotifications = (() => {
   }
   function announce(messages) {
     const latest = messages[0];
-    $('notificationLive').innerHTML = `<button type="button" class="new-chat-banner"><span aria-hidden="true">✉</span><span><strong>${messages.length > 1 ? messages.length + ' pesan baru' : 'Pesan dari ' + esc(latest.sender_name || 'percakapanmu')}</strong><small>Buka percakapan untuk membaca pesan ↗</small></span></button>`;
+    $('notificationLive').innerHTML = `<button type="button" class="new-chat-banner"><span>${icon('message-circle')}</span><span><strong>${messages.length > 1 ? messages.length + ' pesan baru' : 'Pesan dari ' + esc(latest.sender_name || 'percakapanmu')}</strong><small>Buka percakapan</small></span></button>`;
     $('notificationLive').querySelector('button').onclick = () => open(latest.room_id);
     clearTimeout(bannerTimer); bannerTimer = setTimeout(() => { $('notificationLive').innerHTML = ''; }, 8000);
     if ('Notification' in window && Notification.permission === 'granted' && stored(storageKey('device')) === '1') {

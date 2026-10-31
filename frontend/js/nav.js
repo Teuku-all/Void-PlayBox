@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function syncNavigation() {
     ticking = false;
     if (!document.getElementById('userScreen').classList.contains('active')) return;
-    const current = sections.filter(s => s.getBoundingClientRect().top <= window.innerHeight * .35).pop();
+    const current = sections.filter(s => s.getClientRects().length && s.getBoundingClientRect().top <= window.innerHeight * .35).pop();
     const id = current?.id || 'home';
     // Game browsing belongs to the home experience.
     const target = id === 'games' ? 'home' : id;

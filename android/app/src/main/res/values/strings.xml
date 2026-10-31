@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Void Play Box</string>
+    <string name="connection_heading">Playbox belum bisa dibuka</string>
+    <string name="retry">Coba lagi</string>
+</resources>

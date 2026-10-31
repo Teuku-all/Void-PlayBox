@@ -2,47 +2,54 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#101827"/>
+<meta name="description" content="Sewa PS4 di Banda Aceh. Pilih paket, isi alamat, dan kami antar ke rumah. Lengkap dengan 2 controller dan game offline."/>
 <title>Void Play Box — Sewa PS4 Offline di Banda Aceh</title>
 <link rel="icon" type="image/png" href="assets/void-play-box.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="stylesheet" href="css/style.css"/>
 <link rel="stylesheet" href="css/customer.css"/>
 <link rel="stylesheet" href="css/maps.css"/>
 <link rel="stylesheet" href="css/admin.css"/>
+<link rel="stylesheet" href="css/polish.css"/>
 </head>
-<body>
+<body class="guest-mode">
+<a class="skip-link" href="#packages">Langsung ke paket sewa</a>
 
 <!-- ══════════════════════════
      LOGIN
 ══════════════════════════ -->
-<div id="loginScreen">
+<div id="loginScreen" role="dialog" aria-modal="true" aria-labelledby="authTitle" tabindex="-1" style="display:none">
   <div class="login-blob login-blob-1"></div>
   <div class="login-blob login-blob-2"></div>
   <div class="login-card">
+    <button class="auth-close" type="button" aria-label="Kembali ke web" onclick="closeAuth()"><span data-icon="x"></span></button>
     <div class="login-logo">
       <img class="brand-logo login-logo-mark" src="assets/void-play-box.png" alt="Void Play Box"/>
-      <h1>Void Play Box</h1>
-      <p>Sewa PS4 untuk main offline di Banda Aceh</p>
+      <h1 id="authTitle">Masuk ke Playbox</h1>
+      <p>Pesan lebih mudah dengan akunmu.</p>
     </div>
     <div class="role-toggle" id="roleToggle">
       <button class="role-btn active" onclick="setAuthMode('login',this)">Masuk</button>
       <button class="role-btn" onclick="setAuthMode('register',this)">Daftar</button>
     </div>
     <div id="regFields" style="display:none">
-      <div class="form-group"><label class="form-label">Nama Lengkap</label><input class="form-ctrl" id="regName" placeholder="Nama kamu"/></div>
-      <div class="form-group"><label class="form-label">Nomor WhatsApp</label><input class="form-ctrl" id="regPhone" placeholder="08xxxxxxxxxx"/></div>
+      <div class="form-group"><label class="form-label" for="regName">Nama Lengkap</label><input class="form-ctrl" id="regName" autocomplete="name" placeholder="Nama kamu"/></div>
+      <div class="form-group"><label class="form-label" for="regPhone">Nomor WhatsApp</label><input class="form-ctrl" id="regPhone" type="tel" autocomplete="tel" placeholder="08xxxxxxxxxx"/></div>
     </div>
     <div class="form-group">
-      <label class="form-label">Email</label>
+      <label class="form-label" for="loginEmail">Email</label>
       <div class="input-icon-field">
         <svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>
         <input class="form-ctrl" id="loginEmail" type="email" placeholder="masukkan email kamu" autocomplete="email"/>
       </div>
     </div>
     <div class="form-group">
-      <label class="form-label">Password</label>
+      <label class="form-label" for="loginPass">Password</label>
       <div class="password-field">
         <svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg>
         <input class="form-ctrl" id="loginPass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitAuth()"/>
@@ -51,8 +58,8 @@
         </button>
       </div>
     </div>
-    <button class="btn-login" id="authBtn" onclick="submitAuth()">Masuk ke Void Play Box</button>
-    <div class="auth-divider"><span>atau lanjutkan dengan</span></div>
+    <button class="btn-login" id="authBtn" onclick="submitAuth()">Masuk</button>
+    <div class="auth-divider"><span>atau</span></div>
     <div id="googleSignInButton" class="google-signin-wrap"></div>
     <p id="googleAuthMessage" class="google-auth-message" role="status" aria-live="polite"></p>
   </div>
@@ -61,87 +68,71 @@
 <!-- ══════════════════════════
      USER SCREEN
 ══════════════════════════ -->
-<div id="userScreen" class="screen">
+<div id="userScreen" class="screen active">
   <!-- NAV -->
   <div class="topnav" id="userNav">
     <header class="nav-topbar">
-      <button class="mobile-menu-btn" id="userMenuBtn" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="userSidebar" onclick="toggleSidebar('user')">&#9776;</button>
+      <button class="mobile-menu-btn" id="userMenuBtn" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="userSidebar" onclick="toggleSidebar('user')"><span data-icon="menu"></span></button>
       <div class="nav-logo"><img class="brand-logo nav-logo-icon" src="assets/void-play-box.png" alt=""/>Void Play Box</div>
     </header>
     <nav class="bottom-nav" id="userSidebar" aria-label="Navigasi utama">
-      <div class="mobile-sidebar-heading"><span>Menu utama</span><button type="button" aria-label="Tutup menu" onclick="closeSidebar()">&times;</button></div>
-      <a class="nav-link active" href="#home" onclick="event.preventDefault();userScroll('home',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1z"/></svg>Beranda</a>
-      <a class="nav-link" href="#packages" onclick="event.preventDefault();userScroll('packages',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 11h12v8H6zM8 11V8a4 4 0 0 1 8 0v3M4 14h2m12 0h2"/></svg>Paket</a>
-      <a class="nav-link" href="#delivery" onclick="event.preventDefault();userScroll('delivery',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>Pengiriman</a>
-      <a class="nav-link" href="#chat-sec" onclick="event.preventDefault();userScroll('chat-sec',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.7 7.4L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5Z"/></svg>Chat<span class="user-chat-badge" hidden></span></a>
-      <a class="nav-link" href="#tutorial" onclick="event.preventDefault();userScroll('tutorial',this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>Tutorial</a>
-    <div class="mobile-sidebar-foot"><span>PS4 offline &middot; Banda Aceh</span><button type="button" onclick="logout()">Keluar dari akun &#8599;</button></div>
+      <div class="mobile-sidebar-heading"><span>Menu utama</span><button type="button" aria-label="Tutup menu" onclick="closeSidebar()"><span data-icon="x"></span></button></div>
+      <a class="nav-link active" href="#home" onclick="event.preventDefault();userScroll('home',this)"><span data-icon="home"></span>Beranda</a>
+      <a class="nav-link" href="#packages" onclick="event.preventDefault();userScroll('packages',this)"><span data-icon="gamepad"></span>Paket</a>
+      <a class="nav-link" href="#delivery" onclick="event.preventDefault();userScroll('delivery',this)"><span data-icon="package"></span>Pesanan</a>
+      <a class="nav-link" href="#chat-sec" onclick="event.preventDefault();userScroll('chat-sec',this)"><span data-icon="message-circle"></span>Chat<span class="user-chat-badge" hidden></span></a>
+      <a class="nav-link" href="#tutorial" onclick="event.preventDefault();userScroll('tutorial',this)"><span data-icon="book-open"></span>Panduan</a>
+    <div class="mobile-sidebar-foot"><span>PS4 offline &middot; Banda Aceh</span><button class="member-only" type="button" onclick="logout()">Keluar <span data-icon="log-out"></span></button><button class="guest-only" type="button" onclick="openAuth()">Masuk / daftar <span data-icon="arrow-up-right"></span></button></div>
     </nav>
     <div class="nav-right">
-      <button class="notification-bell" type="button" aria-label="Notifikasi chat" aria-controls="notificationPanel" aria-expanded="false" onclick="ChatNotifications.togglePanel(this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span class="notification-count" hidden></span></button>
-      <div class="nav-avatar" id="userAvatar">U</div>
-      <button class="btn-logout" onclick="logout()">Keluar</button>
+      <button class="notification-bell member-only" type="button" aria-label="Notifikasi chat" aria-controls="notificationPanel" aria-expanded="false" onclick="ChatNotifications.togglePanel(this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span class="notification-count" hidden></span></button>
+      <div class="nav-avatar member-only" id="userAvatar">U</div>
+      <button class="btn-logout member-only" onclick="logout()">Keluar</button><button class="nav-signin guest-only" type="button" onclick="openAuth()">Masuk <span data-icon="arrow-up-right"></span></button>
     </div>
   </div>
 
   <!-- HERO -->
   <section id="home">
     <div class="hero">
-      <div class="hero-blur-1"></div>
-      <div class="hero-blur-2"></div>
       <div class="hero-inner">
         <div class="hero-text">
-          <div class="hero-eyebrow">Sewa PS4 · Banda Aceh</div>
-          <h1 class="hero-h1">Sewa PS4.<br><em>Serunya sampai<br>ke rumah.</em></h1>
-          <p class="hero-p">Main sendiri atau seru-seruan bareng teman, langsung dari rumah. Pilih durasi sewamu dan nikmati game yang sudah terpasang di konsol PS4.</p>
+          <div class="hero-eyebrow"><span class="status-dot"></span> SEWA PS4 · BANDA ACEH</div>
+          <h1 class="hero-h1">Waktu luang,<br><em>jadi waktu main.</em></h1>
+          <p class="hero-p">PS4 diantar ke rumah. Ajak teman, pilih game, tinggal main.</p>
           <div class="hero-actions">
-            <button class="btn-hero btn-hero-primary" onclick="userScroll('packages')">Lihat paket PS4 &nbsp; ↗</button>
-            <button class="btn-hero btn-hero-ghost" onclick="userScroll('games')">Jelajahi game</button>
+            <button class="btn-hero btn-hero-primary" type="button" onclick="userScroll('packages')">Pilih paket <span data-icon="arrow-right"></span></button>
+            <button class="btn-hero btn-hero-ghost" type="button" onclick="userScroll('games')">Lihat game <span data-icon="gamepad"></span></button>
           </div>
-          <div class="hero-assurances">
-            <span>Main offline</span><span>2 controller</span><span>Antar & pasang</span>
-          </div>
+          <div class="hero-assurances"><span><i data-icon="check"></i>2 controller</span><span><i data-icon="check"></i>Game offline</span><span><i data-icon="check"></i>Antar &amp; pasang</span></div>
         </div>
         <div class="hero-visual">
           <div class="hero-gallery">
-            <img class="hero-game" src="assets/game-cover/fc26.png" alt="EA Sports FC 26"/>
-            <img class="hero-game" src="assets/game-cover/ghostoftsushima.png" alt="Ghost of Tsushima"/>
-            <img class="hero-game" src="assets/game-cover/ittakestwo.png" alt="It Takes Two"/>
-            <div class="hero-gallery-tag"><span aria-hidden="true">✦</span> Satu paket. Banyak petualangan.</div>
+            <img class="hero-game" src="assets/game-cover/fc26.png" alt="EA Sports FC 26" width="165" height="235" fetchpriority="high"/>
+            <img class="hero-game" src="assets/game-cover/ghostoftsushima.png" alt="Ghost of Tsushima" width="185" height="264"/>
+            <img class="hero-game" src="assets/game-cover/ittakestwo.png" alt="It Takes Two" width="165" height="235"/>
           </div>
-          <p class="hero-caption">OLAHRAGA &nbsp; / &nbsp; PETUALANGAN &nbsp; / &nbsp; MAIN BARENG</p>
+          <div class="hero-caption"><span>BUAT MALAM MINGGU &amp; HARI LIBURMU</span><strong id="startingPrice">Pilih durasi. Mulai main.</strong></div>
         </div>
       </div>
     </div>
   </section>
 
-  <div class="content dashboard-content">
-    <div class="dashboard-panel">
-    <div class="welcome-row">
-      <div><span class="welcome-eyebrow">Waktunya santai, waktunya main</span><h2>Halo, <span id="welcomeName">teman main</span>!</h2><p>Mau main sebentar atau seharian? Atur sesi PS4-mu dari sini.</p></div>
-      <span class="welcome-label"><span aria-hidden="true">●</span> PS4 · Mode offline</span>
-    </div>
-    <div class="dashboard-shortcuts">
-      <a class="shortcut shortcut-primary" href="#packages" onclick="event.preventDefault();userScroll('packages')"><span class="shortcut-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="4"/><path d="M7 10v5m-2-2.5h4m6-1h.01M18 14h.01"/></svg></span><div><strong>Pilih paket PS4</strong><small>Per jam, harian, atau paket hemat</small><span class="shortcut-meta" id="startingPrice">Lihat pilihan durasi</span></div><span class="shortcut-arrow" aria-hidden="true">↗</span></a>
-      <a class="shortcut" href="#delivery" onclick="event.preventDefault();userScroll('delivery')"><span class="shortcut-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg></span><div><strong>Pantau pesanan</strong><small>Lihat status dan titik pengantaran</small><span class="shortcut-meta">Buka peta pengiriman</span></div><span class="shortcut-arrow" aria-hidden="true">↗</span></a>
-      <a class="shortcut" href="#chat-sec" onclick="event.preventDefault();userScroll('chat-sec')"><span class="shortcut-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11a9 9 0 0 1-13 8l-5 2 2-5A9 9 0 1 1 21 11Z"/><path d="M8 11h8m-8 4h5"/></svg></span><div><strong>Tanya admin</strong><small>Bantuan paket, game, dan pemasangan</small><span class="shortcut-meta">Mulai percakapan</span></div><span class="shortcut-arrow" aria-hidden="true">↗</span></a>
-    </div>
-    <div class="dashboard-note"><span class="dashboard-note-icon" aria-hidden="true">i</span><p><strong>Sebelum PS4 tiba</strong> Siapkan TV dengan port HDMI dan stopkontak. Konsol digunakan khusus untuk bermain offline, tanpa koneksi internet.</p><a href="#tutorial" onclick="event.preventDefault();userScroll('tutorial')">Panduan PS4 <span aria-hidden="true">↗</span></a></div>
-    </div>
+  <div class="content dashboard-content member-only">
+    <div class="account-strip"><h2>Halo, <span id="welcomeName">teman main</span>.</h2><div><a href="#delivery" onclick="event.preventDefault();userScroll('delivery')"><span data-icon="package"></span>Pesanan saya</a><a href="#chat-sec" onclick="event.preventDefault();userScroll('chat-sec')"><span data-icon="message-circle"></span>Tanya admin</a></div></div>
   </div>
 
   <!-- PACKAGES -->
   <section id="packages">
     <div class="content">
-      <div class="pricing-heading"><div class="sec-header"><span class="section-kicker">Pilih durasi yang pas</span><h2>Paket sewa PS4</h2><p>Semua paket untuk bermain offline, lengkap dengan 2 controller.</p></div><span class="pricing-count" id="pkgCount" role="status" aria-live="polite"></span></div>
+      <div class="pricing-heading"><div class="sec-header"><span class="section-kicker">PAKET SEWA</span><h2>Pilih waktu mainmu.</h2><p>PS4, 2 controller, dan game offline. Tinggal pilih durasinya.</p></div><span class="pricing-count" id="pkgCount" role="status" aria-live="polite"></span></div>
       <div class="pricing-toolbar">
       <div class="pkg-tabs">
         <button class="pkg-tab active" aria-pressed="true" onclick="filterPkg('all',this)">Semua</button>
-        <button class="pkg-tab" aria-pressed="false" onclick="filterPkg('personal',this)">Personal</button>
+        <button class="pkg-tab" aria-pressed="false" onclick="filterPkg('personal',this)">Per jam</button>
         <button class="pkg-tab" aria-pressed="false" onclick="filterPkg('harian',this)">Harian</button>
         <button class="pkg-tab" aria-pressed="false" onclick="filterPkg('hemat',this)">Paket Hemat</button>
       </div>
-      <p class="package-shipping-note"><span aria-hidden="true">↗</span> Antar ke rumah · Ongkir Rp 15.000 di luar harga paket</p>
+      <p class="package-shipping-note"><span data-icon="truck"></span> Ongkir Rp 15.000 per pesanan</p>
       </div>
       <div class="pkg-grid" id="pkgGrid"></div>
       <button class="pkg-more" id="pkgMore" type="button" onclick="expandPkg()" hidden>Lihat lebih banyak</button>
@@ -149,28 +140,23 @@
   </section>
 
   <!-- HOW IT WORKS -->
-  <div class="content how-content">
-    <div class="how-section">
-      <div class="how-connector"></div>
-      <div class="how-grid">
-        <div class="how-item"><div class="how-num">1</div><h4>Pilih Paket</h4><p>Pilih paket personal per jam, harian, atau paket hemat sesuai kebutuhanmu.</p></div>
-        <div class="how-item"><div class="how-num">2</div><h4>Booking & Bayar</h4><p>Isi data pengiriman dan bayar via QRIS, e-wallet, atau COD saat PS tiba.</p></div>
-        <div class="how-item"><div class="how-num">3</div><h4>PS4 Diantar</h4><p>Kami antar dan bantu pasang PS4. Siapkan TV dengan port HDMI dan stopkontak.</p></div>
-        <div class="how-item"><div class="how-num">4</div><h4>Selesai Main</h4><p>Hubungi kami saat selesai, kurir jemput PS. Semudah itu!</p></div>
-      </div>
-    </div>
-  </div>
+  <div class="content how-content"><div class="how-section"><div class="how-label">SEWA TANPA RIBET</div><div class="how-grid">
+    <div class="how-item"><div class="how-num">01</div><div><h4>Pilih paket</h4><p>Sesuaikan dengan waktu mainmu.</p></div></div>
+    <div class="how-item"><div class="how-num">02</div><div><h4>Isi alamat</h4><p>Admin mengonfirmasi pesanan.</p></div></div>
+    <div class="how-item"><div class="how-num">03</div><div><h4>Kami antar</h4><p>PS4 dipasang, siap dimainkan.</p></div></div>
+    <div class="how-item"><div class="how-num">04</div><div><h4>Selesai? Dijemput.</h4><p>Hubungi admin setelah main.</p></div></div>
+  </div></div></div>
 
   <!-- GAME COVERS -->
   <section id="games" class="games-section">
     <div class="content games-content">
       <div class="games-heading">
-        <div class="sec-header"><h2>Pilihan game PS4</h2><p>Mainkan mode offline dari koleksi yang terpasang. Tanyakan pilihan game kepada admin sebelum menyewa.</p></div>
+        <div class="sec-header"><span class="section-kicker">PILIHAN GAME</span><h2>Mau main apa?</h2><p>Bola, balapan, atau petualangan. Cek ketersediaannya lewat admin.</p></div>
       </div>
       <div class="games-showcase" aria-label="Carousel cover game">
-        <button class="games-arrow games-arrow-prev" type="button" aria-label="Game sebelumnya" onclick="changeGame(-1)">‹</button>
+        <button class="games-arrow games-arrow-prev" type="button" aria-label="Game sebelumnya" onclick="changeGame(-1)"><span data-icon="chevron-left"></span></button>
         <div class="games-stage" id="gamesCarousel" tabindex="0" aria-live="polite"></div>
-        <button class="games-arrow games-arrow-next" type="button" aria-label="Game berikutnya" onclick="changeGame(1)">›</button>
+        <button class="games-arrow games-arrow-next" type="button" aria-label="Game berikutnya" onclick="changeGame(1)"><span data-icon="chevron-right"></span></button>
       </div>
       <div class="games-pagination" id="gamesPagination" aria-label="Pilih game"></div>
     </div>
@@ -179,25 +165,26 @@
   <!-- DELIVERY -->
   <section id="delivery">
     <div class="content">
-      <div class="sec-header"><span class="section-kicker">Dari toko ke depan pintu</span><h2>Pengiriman, lebih jelas.</h2><p>Pantau pesanan dan tentukan titik pengantaran yang tepat.</p></div>
-      <div id="trackList"></div>
+      <div class="sec-header"><span class="section-kicker">PESANANMU</span><h2>Tinggal tunggu di rumah.</h2><p>Lihat status pesanan dan titik pengantaran.</p>
+      <div class="guest-gate guest-only"><span class="gate-icon" data-icon="package"></span><div><strong>Sudah punya pesanan?</strong><p>Masuk untuk melihat statusnya.</p></div><button type="button" class="btn-pu" onclick="openAuth()">Masuk <span data-icon="arrow-right"></span></button></div></div>
+      <div id="trackList" class="member-only"></div>
       <!-- MAP -->
-      <div class="map-wrap">
-        <div class="map-heading"><div><span class="section-kicker">Peta pengiriman</span><h3>Perjalanan menuju kamu</h3></div><span class="map-update" id="mapUpdate" role="status">Peta area Banda Aceh</span></div>
+      <div class="map-wrap member-only">
+        <div class="map-heading"><div><span class="section-kicker">Peta pengiriman</span><h3>Titik pengantaran</h3></div><span class="map-update" id="mapUpdate" role="status">Peta area Banda Aceh</span></div>
         <div class="map-controls">
-          <label class="map-order-select" for="trackSelect">Pesanan yang dilacak<select class="form-ctrl" id="trackSelect" onchange="trackOrder(+this.value)"><option value="">Belum ada pesanan</option></select></label>
-          <button class="btn-sm" id="refreshMapBtn" type="button" onclick="refreshTracking(true)" disabled>↻ Perbarui</button>
+          <label class="map-order-select" for="trackSelect">Pilih pesanan<select class="form-ctrl" id="trackSelect" onchange="trackOrder(+this.value)"><option value="">Belum ada pesanan</option></select></label>
+          <button class="btn-sm" id="refreshMapBtn" type="button" onclick="refreshTracking(true)" disabled><span data-icon="refresh-cw"></span> Perbarui</button>
           <button class="btn-sm" id="copyTrackBtn" type="button" onclick="copyTrackCode()" disabled>Salin kode</button>
         </div>
         <div class="delivery-map-layout">
-          <div class="map-viewport"><div id="map" role="region" aria-label="Peta pengiriman dan lokasi saya"></div><button class="map-fit-btn" type="button" onclick="fitDeliveryMap()" aria-label="Tampilkan semua titik di peta">⊞ Semua titik</button><div class="map-legend"><span><i class="legend-store"></i>Toko</span><span><i class="legend-home"></i>Tujuan</span><span><i class="legend-self"></i>Lokasi saya</span><span><i class="legend-courier"></i>Kurir</span></div></div>
+          <div class="map-viewport"><div id="map" role="region" aria-label="Peta pengiriman dan lokasi saya"></div><button class="map-fit-btn" type="button" onclick="fitDeliveryMap()" aria-label="Tampilkan semua titik di peta"><span data-icon="navigation"></span> Semua titik</button><div class="map-legend"><span><i class="legend-store"></i>Toko</span><span><i class="legend-home"></i>Tujuan</span><span><i class="legend-self"></i>Lokasi saya</span><span><i class="legend-courier"></i>Kurir</span></div></div>
           <aside class="location-card">
-            <div class="location-card-icon" aria-hidden="true">◎</div><h4>Tentukan titikmu</h4><p>Gunakan GPS perangkat untuk menandai lokasimu di peta.</p>
-            <button class="btn-location" id="locateMapBtn" type="button" onclick="locateMe('delivery')">◎ Gunakan lokasi saya</button>
-            <p class="location-status" id="mapLocationStatus" role="status" aria-live="polite">Lokasi diambil saat tombol ditekan. Titik dibagikan ke admin setelah disimpan pada pesanan.</p>
+            <div class="location-card-icon" data-icon="map-pin"></div><h4>Alamat lebih akurat</h4><p>Tambahkan titik untuk memudahkan kurir.</p>
+            <button class="btn-location" id="locateMapBtn" type="button" onclick="locateMe('delivery')"><span data-icon="map-pin"></span> Gunakan lokasi saya</button>
+            <p class="location-status" id="mapLocationStatus" role="status" aria-live="polite">Titik dibagikan ke admin setelah kamu menyimpannya ke pesanan.</p>
             <div class="location-details" id="mapLocationDetails" hidden><span class="location-caption">TITIK PILIHANMU</span><strong id="mapLocationCoords"></strong><p id="mapLocationAddress"></p><button class="location-text-btn" type="button" onclick="clearDeliveryLocation()">Hapus titik pilihan</button></div>
             <button class="btn-location btn-location-save" id="saveLocationBtn" type="button" onclick="saveOrderLocation()" hidden>Simpan titik ke pesanan</button>
-            <p class="location-help" id="saveLocationHint">Titik pilihan juga bisa digunakan untuk booking baru.</p>
+            <p class="location-help" id="saveLocationHint">Bisa juga dipakai untuk pesanan baru.</p>
           </aside>
         </div>
         <div class="map-notice" id="mapNotice" role="status">Pilih pesanan untuk melihat tujuan dan posisi kurir.</div>
@@ -214,20 +201,21 @@
   <!-- CHAT -->
   <section id="chat-sec">
     <div class="content">
-      <div class="sec-header"><span class="section-kicker">Ada yang ingin ditanyakan?</span><h2>Chat dengan admin</h2><p>Tanyakan pilihan game, ketersediaan paket, atau bantuan pemasangan PS4.</p></div>
-      <div class="chat-wrap">
+      <div class="sec-header"><span class="section-kicker">BANTUAN</span><h2>Tanya saja, kami bantu.</h2><p>Cek game, paket, atau pemasangan PS4.</p></div>
+      <div class="guest-gate guest-only"><span class="gate-icon" data-icon="message-circle"></span><div><strong>Ada yang ingin ditanyakan?</strong><p>Chat lewat akunmu atau WhatsApp.</p></div><button type="button" class="btn-pu" onclick="openAuth()">Masuk untuk chat</button><a class="btn-sm" href="https://wa.me/6285126539339" target="_blank" rel="noopener noreferrer">WhatsApp <span data-icon="arrow-up-right"></span></a></div>
+      <div class="chat-wrap member-only">
         <div class="chat-list">
-          <div class="chat-list-head">Teman bantu mainmu</div>
+          <div class="chat-list-head">Bantuan Playbox</div>
           <div class="chat-item active">
             <div class="chat-av support-avatar">VP</div>
-            <div style="flex:1;min-width:0"><div class="chat-item-name">Admin Void Play Box</div><div class="chat-item-prev">Bantuan sewa dan pemasangan PS4</div></div>
+            <div style="flex:1;min-width:0"><div class="chat-item-name">Admin Playbox</div><div class="chat-item-prev">Bantuan sewa dan pemasangan PS4</div></div>
           </div>
-          <div class="support-info"><span class="section-kicker">Kami bantu soal</span><ul><li>Paket dan jadwal sewa</li><li>Pilihan game offline</li><li>Pemasangan PS4</li><li>Pengantaran dan penjemputan</li></ul><p>Ceritakan kebutuhanmu lewat pesan. Admin akan membalas di percakapan ini.</p></div>
+          <div class="support-info"><span data-icon="gamepad"></span><strong>Biar kami bantu.</strong><p>Dari pilih game sampai PS4 siap dimainkan.</p></div>
         </div>
         <div class="chat-main-area">
           <div class="chat-top">
             <div class="chat-av support-avatar" id="chatHeadAv">VP</div>
-            <div><div class="chat-top-name" id="chatHeadName">Admin Void Play Box</div><div class="chat-admin-sub">Kirim pesan, admin akan membalas di sini</div></div>
+            <div><div class="chat-top-name" id="chatHeadName">Admin Playbox</div><div class="chat-admin-sub">Paket · Game · Pemasangan</div></div>
             <a class="btn-sm support-whatsapp" href="https://wa.me/6285126539339" target="_blank" rel="noopener noreferrer" aria-label="Hubungi admin melalui WhatsApp">WhatsApp ↗</a>
           </div>
           <div class="chat-msgs" id="chatMsgs">
@@ -240,7 +228,7 @@
           </div>
           <div class="chat-input-row">
             <input class="chat-in" id="chatIn" aria-label="Pesan untuk admin" maxlength="1000" placeholder="Ketik pesan..." onkeydown="if(event.key==='Enter')sendChat()"/>
-            <button class="chat-send-btn" id="userSendBtn" type="button" aria-label="Kirim pesan" onclick="sendChat()">➤</button>
+            <button class="chat-send-btn" id="userSendBtn" type="button" aria-label="Kirim pesan" onclick="sendChat()"><span data-icon="send"></span></button>
           </div>
         </div>
       </div>
@@ -251,15 +239,17 @@
   <section id="tutorial">
     <div class="content">
       <div class="tut-hero">
-        <h2>Panduan PS4 di rumah</h2>
-        <p>Dari menyambungkan konsol sampai mulai bermain. Ikuti langkah singkat berikut sesuai kebutuhanmu.</p>
+        <h2>Baru pertama kali?</h2>
+        <p>Lihat cara memasang PS4 dan mulai bermain.</p>
       </div>
+      <details class="guide-disclosure"><summary>Buka panduan PS4 <span data-icon="chevron-right"></span></summary>
       <div class="tut-tabs">
         <button class="tut-tab active" aria-pressed="true" onclick="showTut('ps4',this)">Pasang PS4</button>
-        <button class="tut-tab" aria-pressed="false" onclick="showTut('ctrl',this)">Sambungkan controller</button>
+        <button class="tut-tab" aria-pressed="false" onclick="showTut('ctrl',this)">Controller</button>
         <button class="tut-tab" aria-pressed="false" onclick="showTut('games',this)">Mulai bermain</button>
       </div>
       <div id="tutContent"></div>
+      </details>
     </div>
   </section>
 
@@ -269,11 +259,11 @@
       <div class="footer-grid">
         <div class="footer-brand">
           <h3>Void Play Box</h3>
-          <p>Sewa PS4 di Banda Aceh untuk bermain offline di rumah. Pilih paket, siapkan TV, dan nikmati waktu mainmu.</p>
+          <p>PS4 di rumah. Waktu main jadi lebih seru.</p>
         </div>
         <div class="footer-col"><h4>Layanan</h4><a href="#packages">Personal</a><a href="#packages">Harian</a><a href="#packages">Paket Hemat</a><a href="#packages">Siap Antar</a></div>
         <div class="footer-col"><h4>Bantuan</h4><a href="#chat-sec">Tanya admin</a><a href="#tutorial">Panduan PS4</a><a href="#games">Pilihan game</a><a href="#delivery">Lacak pesanan</a></div>
-        <div class="footer-col"><h4>Kontak</h4><a href="https://wa.me/6285126539339" target="_blank" rel="noopener noreferrer">☎️ 085126539339 · WhatsApp</a><a href="tel:+6285126539339">Telepon langsung</a><a>📧 playbox@mail.id</a><a>📍 Banda Aceh</a></div>
+        <div class="footer-col"><h4>Kontak</h4><a href="https://wa.me/6285126539339" target="_blank" rel="noopener noreferrer"><span data-icon="phone"></span> 0851 2653 9339</a><a href="tel:+6285126539339">Telepon langsung</a><a href="mailto:playbox@mail.id"><span data-icon="mail"></span> playbox@mail.id</a><span class="footer-location"><span data-icon="map-pin"></span> Banda Aceh</span></div>
       </div>
       <div class="footer-bottom"><span>© 2026 Void Play Box. Hak cipta dilindungi.</span><span>Dari Banda Aceh, untuk waktu santaimu.</span></div>
     </div>
@@ -282,11 +272,11 @@
 
 <!-- BOOKING PANEL -->
 <div class="booking-panel" id="bookingPanel" onclick="closeBookingOutside(event)">
-  <div class="booking-sheet" style="position:relative">
-    <button class="sheet-close" type="button" aria-label="Tutup formulir booking" onclick="closeBooking()">✕</button>
+  <div class="booking-sheet" role="dialog" aria-modal="true" aria-labelledby="bookingTitle" tabindex="-1" style="position:relative">
+    <button class="sheet-close" type="button" aria-label="Tutup formulir booking" onclick="closeBooking()"><span data-icon="x"></span></button>
     <div class="sheet-handle"></div>
-    <div class="sheet-title">Lengkapi pesananmu</div>
-    <p class="sheet-description">Periksa paket pilihanmu, lalu isi data penerima dan tujuan pengantaran.</p>
+    <div class="sheet-title" id="bookingTitle">Sedikit lagi, siap main.</div>
+    <p class="sheet-description">Isi penerima dan alamat pengantaran.</p>
     <div class="booking-summary">
       <span class="section-kicker">Paket pilihanmu</span><div id="bsName">—</div>
       <div id="bsDetail">—</div>
@@ -298,12 +288,12 @@
     <div class="form-group"><label class="form-label" for="bPhone">Nomor WhatsApp</label><input class="form-ctrl" id="bPhone" type="tel" autocomplete="tel" placeholder="08xxxxxxxxxx"/></div>
     <div class="form-group"><label class="form-label" for="bAddr">Alamat Lengkap</label><input class="form-ctrl" id="bAddr" placeholder="Jalan, nomor rumah, kelurahan, kecamatan..."/></div>
     <div class="booking-location">
-      <div class="booking-location-head"><div><h4>Titik pengantaran</h4><p>Tambahkan pin agar admin mudah menemukan alamatmu.</p></div></div>
-      <button class="btn-location" id="locateBookingBtn" type="button" onclick="locateMe('booking')">◎ Gunakan lokasi saya</button>
-      <p class="location-status" id="bookingLocationStatus" role="status" aria-live="polite">Opsional. Izinkan lokasi untuk mengambil titik GPS, atau pilih titik di peta.</p>
+      <div class="booking-location-head"><div><h4>Titik pengantaran</h4><p>Opsional, agar alamat lebih mudah ditemukan.</p></div></div>
+      <button class="btn-location" id="locateBookingBtn" type="button" onclick="locateMe('booking')"><span data-icon="map-pin"></span> Gunakan lokasi saya</button>
+      <p class="location-status" id="bookingLocationStatus" role="status" aria-live="polite">Gunakan GPS atau ketuk peta untuk memilih titik.</p>
       <div id="bookingMap" role="region" aria-label="Pilih titik pengantaran di peta"></div>
       <div class="booking-pin-info"><span id="bookingLocationCoords">Belum ada titik dipilih</span><button class="location-text-btn" id="clearBookingLocationBtn" type="button" onclick="clearDeliveryLocation()" hidden>Hapus titik</button></div>
-      <p class="location-help">Ketuk peta atau geser pin untuk menyesuaikan tujuan. Titik dikirim ke admin saat booking dikonfirmasi.</p>
+      <p class="location-help">Titik dibagikan saat kamu mengonfirmasi pesanan.</p>
     </div>
     <div class="form-group">
       <label class="form-label" for="bPay">Metode pembayaran</label>
@@ -315,7 +305,7 @@
         <option value="cod">Bayar di Tempat (COD)</option>
       </select>
     </div>
-    <button class="btn-pu w-full mt-4" style="padding:14px;font-size:15px" id="bookBtn" onclick="submitBooking()">Konfirmasi Booking</button>
+    <button class="btn-pu w-full mt-4" style="padding:14px;font-size:15px" id="bookBtn" onclick="submitBooking()">Kirim pesanan</button>
   </div>
 </div>
 
@@ -324,7 +314,7 @@
 ══════════════════════════ -->
 <div id="adminScreen" class="screen">
   <aside class="admin-sidebar" id="adminSidebar" aria-label="Menu admin">
-    <div class="mobile-sidebar-heading"><span>Panel admin</span><button type="button" aria-label="Tutup menu" onclick="closeSidebar()">&times;</button></div>
+    <div class="mobile-sidebar-heading"><span>Panel admin</span><button type="button" aria-label="Tutup menu" onclick="closeSidebar()"><span data-icon="x"></span></button></div>
     <div class="admin-logo"><div class="admin-logo-txt"><img class="brand-logo admin-logo-icon" src="assets/void-play-box.png" alt=""/>Void Play Box</div><div class="admin-logo-sub">Panel Admin</div></div>
     <nav class="admin-nav">
       <div class="anav-group">Dashboard</div>
@@ -341,11 +331,11 @@
       <div class="admin-user-av">A</div>
       <div><div class="admin-user-name">Admin Void Play Box</div><div class="admin-user-role">Super Admin</div></div>
     </div>
-    <button class="admin-sidebar-logout" type="button" onclick="logout()"><span aria-hidden="true">↪</span>Keluar</button>
+    <button class="admin-sidebar-logout" type="button" onclick="logout()"><span data-icon="log-out"></span>Keluar</button>
   </aside>
   <div class="admin-main">
     <div class="admin-topbar">
-      <button class="mobile-menu-btn" id="adminMenuBtn" type="button" aria-label="Buka menu admin" aria-expanded="false" aria-controls="adminSidebar" onclick="toggleSidebar('admin')">&#9776;</button><div class="admin-topbar-title"><span>VOID PLAY BOX / ADMIN</span><h2 id="adminTitle">Ringkasan operasional</h2></div>
+      <button class="mobile-menu-btn" id="adminMenuBtn" type="button" aria-label="Buka menu admin" aria-expanded="false" aria-controls="adminSidebar" onclick="toggleSidebar('admin')"><span data-icon="menu"></span></button><div class="admin-topbar-title"><span>VOID PLAY BOX / ADMIN</span><h2 id="adminTitle">Ringkasan operasional</h2></div>
       <button class="notification-bell" type="button" aria-label="Notifikasi chat" aria-controls="notificationPanel" aria-expanded="false" onclick="ChatNotifications.togglePanel(this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span class="notification-count" hidden></span></button>
       <div class="admin-user-av topbar-avatar">A</div>
     </div>
@@ -353,13 +343,13 @@
 
       <!-- DASHBOARD -->
       <div class="admin-section active" id="adm-dashboard">
-        <div class="admin-welcome"><div><span class="section-kicker">Pusat kendali rental PS4</span><h1>Selamat datang, Admin.</h1><p>Pantau pesanan, kelola unit, dan bantu pelanggan dari satu tempat.</p></div><button class="btn-pu" onclick="adminNav('orders')">Kelola pesanan &#8599;</button></div>
-        <div class="admin-quick-grid"><button onclick="adminNav('orders')"><span>01 / PESANAN</span><strong id="adminPendingCount">Memuat pesanan&hellip;</strong><small>Tinjau dan konfirmasi pesanan baru &#8599;</small></button><button onclick="adminNav('inventory')"><span>02 / INVENTARIS</span><strong id="adminAvailableCount">Memuat unit&hellip;</strong><small>Periksa kesiapan konsol PS4 &#8599;</small></button><button onclick="adminNav('chat')"><span>03 / PERCAKAPAN</span><strong id="adminUnreadCount">Belum ada pesan baru</strong><small>Buka chat pelanggan &#8599;</small></button></div>
+        <div class="admin-welcome"><div><span class="section-kicker">Pusat kendali rental PS4</span><h1>Selamat datang, Admin.</h1><p>Pesanan, unit, dan percakapan hari ini.</p></div><button class="btn-pu" onclick="adminNav('orders')">Kelola pesanan &#8599;</button></div>
+        <div class="admin-quick-grid"><button onclick="adminNav('orders')"><span>01 / PESANAN</span><strong id="adminPendingCount">Memuat pesanan&hellip;</strong><small>Tinjau pesanan baru</small></button><button onclick="adminNav('inventory')"><span>02 / INVENTARIS</span><strong id="adminAvailableCount">Memuat unit&hellip;</strong><small>Lihat unit siap sewa</small></button><button onclick="adminNav('chat')"><span>03 / PERCAKAPAN</span><strong id="adminUnreadCount">Belum ada pesan baru</strong><small>Balas pelanggan</small></button></div>
         <div class="kpi-grid">
-          <div class="kpi-card"><div class="kpi-icon-wrap" style="background:#EDE9FE">📋</div><div class="kpi-label">Total Pesanan Aktif</div><div class="kpi-val" id="kpiOrders">–</div><div class="kpi-change" id="kpiSub1"></div></div>
-          <div class="kpi-card"><div class="kpi-icon-wrap" style="background:#D1FAE5">💰</div><div class="kpi-label">Pendapatan Bulan Ini</div><div class="kpi-val" id="kpiRevenue">–</div><div class="kpi-change" id="kpiSub2"></div></div>
-          <div class="kpi-card"><div class="kpi-icon-wrap" style="background:#FEF3C7">🎮</div><div class="kpi-label">Unit PS Terpakai</div><div class="kpi-val" id="kpiUnits">–</div><div class="kpi-change" id="kpiSub3"></div></div>
-          <div class="kpi-card"><div class="kpi-icon-wrap" style="background:#FEE2E2">⭐</div><div class="kpi-label">Rating Rata-rata</div><div class="kpi-val" id="kpiRating">–</div><div class="kpi-change" id="kpiSub4"></div></div>
+          <div class="kpi-card"><div class="kpi-icon-wrap" style="background:#EDE9FE"><span data-icon="package"></span></div><div class="kpi-label">Total Pesanan Aktif</div><div class="kpi-val" id="kpiOrders">–</div><div class="kpi-change" id="kpiSub1"></div></div>
+          <div class="kpi-card"><div class="kpi-icon-wrap" style="background:#D1FAE5"><span data-icon="credit-card"></span></div><div class="kpi-label">Pendapatan Bulan Ini</div><div class="kpi-val" id="kpiRevenue">–</div><div class="kpi-change" id="kpiSub2"></div></div>
+          <div class="kpi-card"><div class="kpi-icon-wrap" style="background:#FEF3C7"><span data-icon="gamepad"></span></div><div class="kpi-label">Unit PS Terpakai</div><div class="kpi-val" id="kpiUnits">–</div><div class="kpi-change" id="kpiSub3"></div></div>
+          <div class="kpi-card"><div class="kpi-icon-wrap" style="background:#FEE2E2"><span data-icon="star"></span></div><div class="kpi-label">Rating Rata-rata</div><div class="kpi-val" id="kpiRating">–</div><div class="kpi-change" id="kpiSub4"></div></div>
         </div>
         <div class="admin-charts-grid">
           <div class="chart-card">
@@ -408,11 +398,11 @@
       <!-- CHAT -->
       <div class="admin-section" id="adm-chat">
         <div class="chat-wrap">
-          <div class="chat-list"><div class="chat-list-head">💬 Percakapan Pelanggan</div><div id="admRooms"></div></div>
+          <div class="chat-list"><div class="chat-list-head">Percakapan pelanggan</div><div id="admRooms"></div></div>
           <div class="chat-main-area">
             <div class="chat-top"><div class="chat-top-name" id="admChatHead">Pilih percakapan</div></div>
-            <div class="chat-msgs" id="admChatMsgs"><div class="chat-placeholder"><span aria-hidden="true">?</span><strong>Pilih percakapan pelanggan</strong><p>Pesan, pertanyaan paket, dan bantuan pemasangan ada di sini.</p></div></div>
-            <div class="chat-input-row"><input class="chat-in" id="admChatIn" aria-label="Balasan untuk pelanggan" maxlength="1000" disabled placeholder="Balas pesan..." onkeydown="if(event.key==='Enter')sendAdminChat()"/><button class="chat-send-btn" id="adminSendBtn" type="button" aria-label="Kirim balasan" disabled onclick="sendAdminChat()">➤</button></div>
+            <div class="chat-msgs" id="admChatMsgs"><div class="chat-placeholder"><span data-icon="message-circle"></span><strong>Pilih percakapan pelanggan</strong><p>Pilih pelanggan untuk membalas pesan.</p></div></div>
+            <div class="chat-input-row"><input class="chat-in" id="admChatIn" aria-label="Balasan untuk pelanggan" maxlength="1000" disabled placeholder="Balas pesan..." onkeydown="if(event.key==='Enter')sendAdminChat()"/><button class="chat-send-btn" id="adminSendBtn" type="button" aria-label="Kirim balasan" disabled onclick="sendAdminChat()"><span data-icon="send"></span></button></div>
           </div>
         </div>
       </div>
@@ -434,17 +424,17 @@
 <!-- MODAL -->
 <div class="modal-ov" id="modalOv" onclick="closeModal(event)">
   <div class="modal-box">
-    <button class="modal-close" onclick="closeModalDirect()">✕</button>
-    <div class="modal-icon">🎉</div>
-    <div class="modal-title">Booking Berhasil!</div>
-    <div class="modal-sub">Pesanan PS4-mu sudah kami terima. Admin akan mengonfirmasi ketersediaan dan jadwal pengantaran melalui WhatsApp.</div>
+    <button class="modal-close" onclick="closeModalDirect()" aria-label="Tutup"><span data-icon="x"></span></button>
+    <div class="modal-icon" data-icon="check-circle"></div>
+    <div class="modal-title">Pesanan terkirim.</div>
+    <div class="modal-sub">Admin akan mengonfirmasi paket dan jadwal pengantaran lewat WhatsApp.</div>
     <div style="background:var(--pu6);border-radius:var(--r-sm);padding:14px;margin-bottom:20px">
       <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Nomor Pesanan</div>
       <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--pu2)" id="modalOrderId">#PBX-...</div>
     </div>
     <div style="display:flex;gap:10px">
       <button class="btn-sm w-full" style="flex:1;padding:12px" onclick="closeModalDirect()">Tutup</button>
-      <button class="btn-pu" style="flex:1;padding:12px" onclick="closeModalDirect();userScroll('delivery')">🗺️ Lacak Kurir</button>
+      <button class="btn-pu" style="flex:1;padding:12px" onclick="closeModalDirect();userScroll('delivery')"><span data-icon="package"></span> Lihat pesanan</button>
     </div>
   </div>
 </div>
@@ -459,24 +449,24 @@
 <!-- MODAL FORM (tambah/edit admin, detail pesanan) -->
 <div class="modal-ov" id="formOv" onclick="if(event.target===this)closeForm()">
   <div class="modal-box" style="text-align:left">
-    <button class="modal-close" onclick="closeForm()">✕</button>
+    <button class="modal-close" onclick="closeForm()" aria-label="Tutup"><span data-icon="x"></span></button>
     <div class="modal-title" id="formTitle" style="margin-bottom:16px"></div>
     <div id="formBody"></div>
     <button class="btn-pu w-full mt-4" id="formSubmit" style="padding:12px">Simpan</button>
   </div>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="js/api.js"></script>
-<script src="js/ui.js"></script>
-<script src="js/nav.js"></script>
-<script src="js/tutorials.js"></script>
-<script src="js/games.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/user.js"></script>
-<script src="js/maps.js"></script>
-<script src="js/admin.js"></script>
-<script src="js/notifications.js"></script>
+<script src="js/api.js" defer></script>
+<script src="js/ui.js" defer></script>
+<script src="js/nav.js" defer></script>
+<script src="js/tutorials.js" defer></script>
+<script src="js/games.js" defer></script>
+<script src="js/auth.js" defer></script>
+<script src="js/user.js" defer></script>
+<script src="js/maps.js" defer></script>
+<script src="js/admin.js" defer></script>
+<script src="js/notifications.js" defer></script>
 </body>
 </html>

@@ -4,33 +4,43 @@ let trackTimer = null, chatTimer = null, chatCount = -1, userChatLoading = false
 const STORE_POS = [5.5483, 95.3238]; // Void Play Box Store, Banda Aceh
 
 async function enterUser(user) {
+  const token = Session.token;
+  document.body.classList.remove('guest-mode');
   $('userScreen').classList.add('active');
   $('userAvatar').textContent = (user.name || user.email || 'U').charAt(0).toUpperCase();
   $('welcomeName').textContent = (user.name?.trim() || 'teman main').split(' ')[0];
   initMap();
   showTut('ps4', null);
   await Promise.all([loadPackages(), loadMyOrders()]);
+  if (token !== Session.token || Session.user?.role !== 'user') return;
   startChat();
-  toast(`Selamat datang, ${(user.name || '').split(' ')[0]}! 🎮`, 'success');
+  if (pendingPackageId !== null) {
+    const packageId = pendingPackageId;
+    pendingPackageId = null;
+    document.querySelector(`.btn-pkg[onclick="bookPkg(${packageId})"]`)?.focus({ preventScroll: true });
+    bookPkg(packageId);
+  }
 }
 
 function stopUserPolling() {
   clearInterval(trackTimer); clearInterval(chatTimer);
   trackedOrderId = null; chatCount = -1; selectedPkg = null;
+  userChatLoading = false;
   resetLocationSession();
 }
 
 /* ══════ PAKET ══════ */
 async function loadPackages() {
-  $('pkgGrid').innerHTML = '<div class="package-state" role="status">Menyiapkan paket main untukmu…</div>';
+  $('pkgGrid').innerHTML = '<div class="package-state" role="status">Memuat paket…</div>';
   $('pkgMore').hidden = true;
   try {
     PACKAGES = (await api.get('/packages')).packages.filter(p => ['ps4_slim', 'ps4_pro'].includes(p.ps_type));
     if (PACKAGES.length) $('startingPrice').textContent = `Mulai ${rupiah(Math.min(...PACKAGES.map(p => p.price)))}`;
+    document.querySelectorAll('.pkg-tab').forEach((tab, index) => { tab.classList.toggle('active', index === 0); tab.setAttribute('aria-pressed', String(index === 0)); });
     renderPackages('all');
   } catch (e) {
     $('pkgCount').textContent = '';
-    $('pkgGrid').innerHTML = `<div class="package-state" role="alert">Paket belum bisa dimuat. ${esc(e.message)}<button class="btn-sm" onclick="loadPackages()">Coba lagi</button></div>`;
+    $('pkgGrid').innerHTML = '<div class="package-state" role="alert"><strong>Paket belum bisa dimuat.</strong><p>Periksa koneksi, lalu coba lagi.</p><button class="btn-sm" onclick="loadPackages()">Coba lagi</button></div>';
   }
 }
 
@@ -48,7 +58,7 @@ function applyPkgCollapse() {
   const collapsed = pkgCat === 'all' && !pkgExpanded && cards.length > limit;
   cards.forEach((card, i) => { card.hidden = collapsed && i >= limit; });
   btn.hidden = !collapsed;
-  btn.textContent = `Lihat semua ${cards.length} paket ↓`;
+  btn.textContent = `Lihat ${cards.length} paket`;
   btn.setAttribute('aria-expanded', String(!collapsed));
   btn.setAttribute('aria-controls', 'pkgGrid');
 }
@@ -70,15 +80,15 @@ function renderPackages(cat) {
   $('pkgGrid').innerHTML = list.map(p => `
     <article class="pkg-card${p.is_popular ? ' featured' : ''}">
       <div class="pkg-card-top">
-      <div class="pkg-icon-wrap">${PS_ICON[p.ps_type] || '🎮'}</div>
-      ${p.is_popular ? '<span class="pkg-popular">✦ Favorit pemain</span>' : `<span class="pkg-category">${esc(groups[p.catalog_group || p.category] || 'Paket sewa')}</span>`}
+      <div class="pkg-icon-wrap">${icon('gamepad')}</div>
+      ${p.is_popular ? '<span class="pkg-popular">Favorit</span>' : `<span class="pkg-category">${esc(groups[p.catalog_group || p.category] || 'Paket sewa')}</span>`}
       </div>
       <h3 class="pkg-name">${esc(p.name)}</h3>
       <div class="pkg-dur"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>${esc(p.duration_label || `${p.duration} Hari`)}</div>
-      <div class="pkg-price">${rupiah(p.price)}<span>/ paket · sesuai durasi pilihan</span></div>
-      <ul class="pkg-features">${[...new Set([...p.features, 'Mode bermain offline'])].map(f => `<li><span class="pkg-check">✓</span>${esc(f)}</li>`).join('')}</ul>
-      <button class="btn-pkg ${p.is_popular ? 'btn-pkg-main' : 'btn-pkg-outline'}" aria-label="${esc('Pilih ' + p.name)}" onclick="bookPkg(${p.id})">Pilih paket ini <span aria-hidden="true">↗</span></button>
-    </article>`).join('') || '<div class="package-state" role="status">Belum ada paket di kategori ini. Coba kategori lainnya, ya.</div>';
+      <div class="pkg-price">${rupiah(p.price)}<span>/ paket</span></div>
+      <ul class="pkg-features">${[...new Set([...(Array.isArray(p.features) ? p.features : []).filter(f => !/^ps4|pilih jadwal/i.test(f)), 'Main offline'])].slice(0, 3).map(f => `<li><span class="pkg-check">${icon('check')}</span>${esc(f)}</li>`).join('')}</ul>
+      <button class="btn-pkg ${p.is_popular ? 'btn-pkg-main' : 'btn-pkg-outline'}" aria-label="${esc('Pilih ' + p.name)}" onclick="bookPkg(${p.id})">Pilih paket ${icon('arrow-right')}</button>
+    </article>`).join('') || '<div class="package-state" role="status">Belum ada paket. Coba kategori lain.</div>';
   applyPkgCollapse();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(applyPkgCollapse);
 }
@@ -93,24 +103,40 @@ function filterPkg(cat, el) {
 
 /* ══════ BOOKING ══════ */
 function bookPkg(id) {
+  if (!Session.token || Session.user?.role !== 'user') { openAuth(id); return; }
   selectedPkg = PACKAGES.find(p => p.id === id);
+  if (!selectedPkg) return toast('Paket ini belum tersedia. Pilih paket lainnya.');
   const u = Session.user || {};
   $('bsName').textContent = selectedPkg.name;
-  $('bsDetail').textContent = `${PS_ICON[selectedPkg.ps_type]} · ${selectedPkg.duration_label || `${selectedPkg.duration} Hari`} · 2 Controller`;
+  $('bsDetail').textContent = `PS4 · ${selectedPkg.duration_label || `${selectedPkg.duration} Hari`} · 2 controller`;
   $('bsPrice').textContent = rupiah(selectedPkg.price);
   $('bsTotal').textContent = rupiah(Number(selectedPkg.price) + 15000);
   if (!$('bName').value) $('bName').value = u.name || '';
   if (!$('bPhone').value) $('bPhone').value = u.phone || '';
   if (!$('bAddr').value) $('bAddr').value = u.address || '';
-  $('bookingPanel').classList.add('open');
-  initBookingMap();
+  openBooking();
 }
 
+let bookingReturnFocus = null;
 function openBooking() {
-  if (selectedPkg) { $('bookingPanel').classList.add('open'); initBookingMap(); }
-  else toast('Pilih paket terlebih dahulu ya!');
+  if (!Session.token || Session.user?.role !== 'user') { openAuth(); return; }
+  if (!selectedPkg) return toast('Pilih paket terlebih dahulu.');
+  closeSidebar(false);
+  ChatNotifications.closePanel();
+  bookingReturnFocus = document.activeElement;
+  $('bookingPanel').classList.add('open');
+  document.body.classList.add('booking-is-open');
+  setScreenInert(true);
+  initBookingMap();
+  requestAnimationFrame(() => $('bookingPanel').querySelector('.sheet-close')?.focus({ preventScroll: true }));
 }
-function closeBooking() { $('bookingPanel').classList.remove('open'); }
+function closeBooking() {
+  $('bookingPanel').classList.remove('open');
+  document.body.classList.remove('booking-is-open');
+  setScreenInert(false);
+  if (bookingReturnFocus?.isConnected) bookingReturnFocus.focus({ preventScroll: true });
+  bookingReturnFocus = null;
+}
 function closeBookingOutside(e) { if (e.target === $('bookingPanel')) closeBooking(); }
 function closeModal(e) { if (e.target === $('modalOv')) closeModalDirect(); }
 function closeModalDirect() { $('modalOv').classList.remove('open'); }
@@ -128,24 +154,33 @@ async function geocodeAddress(addr) {
 }
 
 async function submitBooking() {
+  if ($('bookBtn').disabled) return;
+  if (!Session.token || Session.user?.role !== 'user') { closeBooking(); openAuth(); return; }
   const name = $('bName').value.trim(), phone = $('bPhone').value.trim(), addr = $('bAddr').value.trim();
-  if (!selectedPkg) return toast('Pilih paket terlebih dahulu ya!');
-  if (locationBusy) return toast('Tunggu pencarian lokasi selesai, atau hapus titik untuk melanjutkan dengan alamat manual.');
-  if (!name || !phone || !addr) return toast('⚠️ Lengkapi semua data dulu ya!', 'error');
+  if (!selectedPkg) return toast('Pilih paket terlebih dahulu.');
+  if (locationBusy) return toast('Tunggu pencarian lokasi selesai.');
+  if (!name || !phone || !addr) {
+    const missing = !name ? $('bName') : !phone ? $('bPhone') : $('bAddr');
+    missing.focus();
+    return toast('Lengkapi nama, WhatsApp, dan alamat.', 'error');
+  }
 
   const btn = $('bookBtn');
+  const token = Session.token, packageId = selectedPkg.id;
   btn.disabled = true; btn.textContent = 'Memproses…';
   try {
     const pos = deliveryLocation
       ? { delivery_lat: deliveryLocation.lat, delivery_lng: deliveryLocation.lng }
       : await geocodeAddress(addr);
+    if (token !== Session.token) return;
     const { order } = await api.post('/orders', {
-      package_id: selectedPkg.id,
+      package_id: packageId,
       payment_method: $('bPay').value,
       delivery_address: addr,
       notes: `Penerima: ${name} · WA: ${phone}`,
       ...pos,
     });
+    if (token !== Session.token) return;
     closeBooking();
     $('modalOrderId').textContent = '#' + order.order_code;
     $('modalOv').classList.add('open');
@@ -155,14 +190,20 @@ async function submitBooking() {
   } catch (e) {
     toast(e.message, 'error');
   } finally {
-    btn.disabled = false; btn.textContent = 'Konfirmasi Booking';
+    btn.disabled = false; btn.textContent = 'Kirim pesanan';
   }
 }
 
 /* ══════ PESANAN & PELACAKAN ══════ */
 async function loadMyOrders() {
-  try { myOrders = (await api.get('/orders/my')).orders; }
-  catch (e) { return toast(e.message, 'error'); }
+  if (!Session.token || Session.user?.role !== 'user') return;
+  const token = Session.token;
+  try {
+    const { orders } = await api.get('/orders/my');
+    if (token !== Session.token) return;
+    myOrders = orders;
+  }
+  catch (e) { if (token === Session.token) toast(e.message, 'error'); return; }
   renderTrackList();
 
   const sel = $('trackSelect');
@@ -183,7 +224,7 @@ async function loadMyOrders() {
 function renderTrackList() {
   const steps = ['Konfirmasi', 'Disiapkan', 'Diantar', 'Tiba'];
   if (!myOrders.length) {
-    $('trackList').innerHTML = '<div class="tracking-empty"><span aria-hidden="true">↗</span><div><strong>Belum ada perjalanan</strong><p>Pilih paket main pertamamu. Kamu tetap bisa menandai lokasi di peta.</p></div><button class="btn-sm" onclick="userScroll(\'packages\')">Pilih paket</button></div>';
+    $('trackList').innerHTML = `<div class="tracking-empty"><span aria-hidden="true">${icon('package')}</span><div><strong>Belum ada pesanan</strong><p>Paket pilihanmu akan muncul di sini.</p></div><button class="btn-sm" onclick="userScroll('packages')">Pilih paket</button></div>`;
     return;
   }
   $('trackList').innerHTML = `<div class="tracking-cards">
@@ -194,11 +235,11 @@ function renderTrackList() {
         <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${(ORDER_STATUS[o.status] || {}).step || 0}%"></div></div>
         <div class="track-steps">${steps.map(s => `<span>${s}</span>`).join('')}</div>
         <div class="courier-row">
-          <div class="courier-av" style="background:#FEF3C7">${o.courier_name ? '🛵' : '⏳'}</div>
-          <div class="courier-info"><div class="courier-name">${esc(o.courier_name || 'Menunggu penugasan kurir')}</div>
-          <div class="courier-sub">${o.courier_name ? 'Kurir untuk pesananmu' : 'Admin sedang mengatur pengantaran'}</div></div>
+          <div class="courier-av">${icon(o.courier_name ? 'truck' : 'clock')}</div>
+          <div class="courier-info"><div class="courier-name">${esc(o.courier_name || 'Menunggu kurir')}</div>
+          <div class="courier-sub">${o.courier_name ? 'Kurir pesananmu' : 'Pengantaran sedang diatur'}</div></div>
         </div>
-        <div class="track-actions"><button class="btn-sm" onclick="focusOrder(${o.id})">Lihat di peta ↗</button>${['pending', 'confirmed'].includes(o.status) ? `<button class="btn-sm" onclick="cancelOrder(${o.id})">Batalkan pesanan</button>` : ''}</div>
+        <div class="track-actions"><button class="btn-sm" onclick="focusOrder(${o.id})">Lihat peta ${icon('arrow-up-right')}</button>${['pending', 'confirmed'].includes(o.status) ? `<button class="btn-sm" onclick="cancelOrder(${o.id})">Batalkan</button>` : ''}</div>
       </div>`).join('')}
   </div>`;
 }
@@ -206,7 +247,7 @@ function renderTrackList() {
 function focusOrder(id) {
   $('trackSelect').value = id;
   trackOrder(id);
-  $('map').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  $('map').scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'center' });
 }
 
 async function cancelOrder(id) {
@@ -218,21 +259,22 @@ async function cancelOrder(id) {
   } catch (e) { toast(e.message, 'error'); }
 }
 
-function copyTrackCode() {
+async function copyTrackCode() {
   const o = myOrders.find(x => x.id === trackedOrderId);
   if (!o) return toast('Belum ada pesanan untuk dilacak');
-  navigator.clipboard?.writeText(o.order_code);
-  toast('🔗 Kode pesanan disalin!', 'success');
+  try { await navigator.clipboard.writeText(o.order_code); toast('Kode pesanan disalin.', 'success'); }
+  catch { toast('Kode belum tersalin. Salin nomor pesanan secara manual.', 'error'); }
 }
 
 /* LIVE CHAT */
 const myRoom = () => `user_${Session.user.id}`;
 
 function startChat() {
+  if (!Session.token || Session.user?.role !== 'user') return;
   ChatNotifications.start();
   loadChat();
   clearInterval(chatTimer);
-  chatTimer = setInterval(() => { if (ChatNotifications.active(myRoom())) loadChat(); }, 5000);
+  chatTimer = setInterval(() => { if (Session.user?.role === 'user' && ChatNotifications.active(myRoom())) loadChat(); }, 5000);
 }
 
 async function loadChat() {
@@ -246,7 +288,7 @@ async function loadChat() {
     const signature = messages.map(m => m.id).join(',');
     const nearBottom = ChatNotifications.atBottom(box);
     if (signature !== box.dataset.messageIds || chatCount === -1) {
-      box.innerHTML = bubble('Halo! Selamat datang di Void Play Box. Tanyakan paket PS4, pilihan game, atau bantuan pemasangan di sini.', 'theirs', '')
+      box.innerHTML = bubble('Halo! Mau tanya paket atau pilihan game?', 'theirs', '')
       + messages.map(m => bubble(m.message, m.sender_role === 'admin' ? 'theirs' : 'mine', fmtTime(m.created_at))).join('');
       if (nearBottom || chatCount === -1) box.scrollTop = box.scrollHeight;
       box.dataset.messageIds = signature;
@@ -258,14 +300,28 @@ async function loadChat() {
 }
 
 async function sendChat() {
+  if (!Session.token || Session.user?.role !== 'user') { openAuth(); return; }
   const inp = $('chatIn'), txt = inp.value.trim();
   if (!txt || $('userSendBtn').disabled) return;
   $('userSendBtn').disabled = true;
+  const token = Session.token;
   try {
     await api.post(`/chat/${myRoom()}/messages`, { message: txt });
+    if (token !== Session.token) return;
     inp.value = '';
     loadChat();
   } catch (e) { toast(e.message, 'error'); }
   finally { $('userSendBtn').disabled = false; }
 }
 function sendQuick(txt) { $('chatIn').value = txt; sendChat(); }
+
+document.addEventListener('keydown', event => {
+  if (!$('bookingPanel').classList.contains('open')) return;
+  if (event.key === 'Escape') { event.preventDefault(); closeBooking(); return; }
+  if (event.key !== 'Tab') return;
+  const focusable = [...$('bookingPanel').querySelectorAll('button,a[href],input,select,textarea,[tabindex="0"]')]
+    .filter(el => !el.disabled && el.getClientRects().length);
+  const first = focusable[0], last = focusable.at(-1);
+  if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+  else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+});
